@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>반려동물 전체 통계</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: '#10b981',
+          bgLight: '#FDFBF7',
+        }
+      }
+    }
+  };
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  /* 스크롤 기능은 100% 유지하면서 브라우저 스크롤바 UI만 투명하게 숨김 */
+  html, body {
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+  * { font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif; }
+</style>
+</head>
+<body class="bg-[#FDFBF7] text-slate-800 antialiased min-h-screen flex justify-center">
+
+<main class="w-full max-w-[430px] min-h-screen bg-[#FDFBF7] flex flex-col p-4 gap-3.5 pb-24">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between pt-2 pb-2 border-b border-slate-200">
+    <button onclick="location.href='01_dashboard.html'" class="w-9 h-9 rounded-full bg-white flex items-center justify-center border border-slate-200 text-slate-700 active:scale-95 cursor-pointer">
+      <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+    </button>
+    <div class="text-center">
+      <h1 class="text-base font-extrabold text-slate-900 tracking-tight">건강 리포트</h1>
+    </div>
+    <div class="w-9"></div>
+  </header>
+
+
+  <!-- [신규] 오늘 종합 건강 상태 & 5대 항목 세로 막대그래프 -->
+  <section class="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm flex items-center justify-between gap-3">
+    <!-- 1. 원형 도넛 요약 (오늘 종합) -->
+    <div class="flex flex-col items-center justify-center flex-shrink-0 w-28 py-1 border-r border-slate-100 pr-2">
+      <div class="relative w-16 h-16 flex items-center justify-center">
+        <!-- Circular Progress Ring SVG -->
+        <svg class="w-full h-full -rotate-90" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" stroke="#f1f5f9" stroke-width="5" fill="none" />
+          <circle id="donut-circle" cx="32" cy="32" r="26" stroke="#10b981" stroke-width="5" stroke-dasharray="163.3" stroke-dashoffset="20" stroke-linecap="round" fill="none" class="transition-all duration-700" />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span id="donut-status" class="text-xs font-black text-emerald-600 leading-tight">양호</span>
+        </div>
+      </div>
+      <span class="text-[10px] font-bold text-slate-500 mt-1.5 flex items-center gap-0.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 오늘 종합
+      </span>
+    </div>
+
+    <!-- 2. 세로 기둥 막대그래프 5대 항목 (식욕, 음수, 대변, 산책, 활력) -->
+    <div class="flex-1 flex flex-col gap-1.5">
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-bold text-slate-700">오늘 5대 체크 현황</span>
+        <span class="text-[9px] font-semibold text-slate-400">항목별 컨디션</span>
+      </div>
+
+      <!-- 세로 막대 5개 나열 (컴팩트 높이 h-16) -->
+      <div class="grid grid-cols-5 gap-1.5 items-end h-16 pt-2 pb-0.5 px-1 bg-slate-50/70 rounded-xl border border-slate-100">
+        <!-- 1. 식욕 -->
+        <div class="flex flex-col items-center justify-end h-full gap-1">
+          <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
+            <div id="bar-appetite" style="height: 90%;" class="w-full bg-[#10b981] rounded-t-sm transition-all duration-500"></div>
+          </div>
+          <span class="text-[9px] font-bold text-slate-600">식욕</span>
+        </div>
+
+        <!-- 2. 음수 -->
+        <div class="flex flex-col items-center justify-end h-full gap-1">
+          <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
+            <div id="bar-water" style="height: 80%;" class="w-full bg-[#3b82f6] rounded-t-sm transition-all duration-500"></div>
+          </div>
+          <span class="text-[9px] font-bold text-slate-600">음수</span>
+        </div>
+
+        <!-- 3. 대변 -->
+        <div class="flex flex-col items-center justify-end h-full gap-1">
+          <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
+            <div id="bar-stool" style="height: 100%;" class="w-full bg-[#10b981] rounded-t-sm transition-all duration-500"></div>
+          </div>
+          <span class="text-[9px] font-bold text-slate-600">대변</span>
+        </div>
+
+        <!-- 4. 산책 -->
+        <div class="flex flex-col items-center justify-end h-full gap-1">
+          <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
+            <div id="bar-walk" style="height: 70%;" class="w-full bg-[#f59e0b] rounded-t-sm transition-all duration-500"></div>
+          </div>
+          <span class="text-[9px] font-bold text-slate-600">산책</span>
+        </div>
+
+        <!-- 5. 활력 -->
+        <div class="flex flex-col items-center justify-end h-full gap-1">
+          <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
+            <div id="bar-vital" style="height: 95%;" class="w-full bg-[#10b981] rounded-t-sm transition-all duration-500"></div>
+          </div>
+          <span class="text-[9px] font-bold text-slate-600">활력</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Period Selector Tabs -->
+  <div class="grid grid-cols-2 gap-2 bg-slate-200/70 p-1 rounded-xl">
+    <button id="tab-week" onclick="setPeriod('week')" class="py-2 rounded-lg font-bold text-xs bg-white text-slate-900 shadow-sm transition-all cursor-pointer">
+      최근 1주일
+    </button>
+    <button id="tab-month" onclick="setPeriod('month')" class="py-2 rounded-lg font-bold text-xs text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+      최근 1개월
+    </button>
+  </div>
+
+        <!-- Main Trend Graph Card: 주간 / 월간 전환 차트 -->
+  <section class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-sm flex flex-col gap-3.5">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-1.5">
+        <span id="chart-title" class="text-sm font-extrabold text-slate-800">주간 건강 컨디션 추이</span>
+      </div>
+      <!-- 4가지 상태 범례 -->
+      <div class="flex items-center gap-2 text-[10px] font-bold text-slate-500">
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#10b981]"></span>최상</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#3b82f6]"></span>양호</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#f59e0b]"></span>주의</span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-[#ef4444]"></span>위험</span>
+      </div>
+    </div>
+
+    <!-- VIEW 1: 최근 1주일 (7개 요일 두꺼운 막대그래프) -->
+    <div id="chart-view-week" class="w-full bg-[#FAF9F5] rounded-2xl p-3 border border-slate-200/60 flex flex-col justify-between">
+      <div class="relative h-36 w-full flex items-end justify-between px-2 pt-2">
+        <!-- 4단계 가로 가이드선 (25%, 50%, 75%, 100%) -->
+        <div class="absolute inset-x-2 top-0 border-b border-dashed border-slate-200/90 pointer-events-none"></div>
+        <div class="absolute inset-x-2 top-1/4 border-b border-dashed border-slate-200/90 pointer-events-none"></div>
+        <div class="absolute inset-x-2 top-2/4 border-b border-dashed border-slate-200/90 pointer-events-none"></div>
+        <div class="absolute inset-x-2 top-3/4 border-b border-dashed border-slate-200/90 pointer-events-none"></div>
+        <div class="absolute inset-x-0 bottom-0 border-b-2 border-slate-300 pointer-events-none"></div>
+
+        <!-- 월 -->
+        <div class="flex flex-col items-center justify-end h-full z-10 w-9">
+          <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
+            <div class="w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 75%;"></div>
+          </div>
+        </div>
+
+        <!-- 화 -->
+        <div class="flex flex-col items-center justify-end h-full z-10 w-9">
+          <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
+            <div class="w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 95%;"></div>
+          </div>
+        </div>
+
+        <!-- 수 -->
+        <div class="flex flex-col items-center justify-end h-full z-10 w-9">
+          <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
+            <div class="w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 75%;"></div>
+          </div>
+        </div>
+
+        <!-- 목 -->
+        <div class="flex flex-col items-center justify-end h-full z-10 w-9">
+          <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
+            <div class="w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- 금 -->
+        <div class="flex flex-col items-center justify-end h-full z-10 w-9">
+          <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
+            <div class="w-full bg-[#f59e0b] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 65%;"></div>
+          </div>
+        </div>
+
+        <!-- 토 -->
+        <div class="flex flex-col items-center justify-end h-full z-10 w-9">
+          <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
+            <div class="w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 75%;"></div>
+          </div>
+        </div>
+
+        <!-- 일 (오늘) -->
+        <div class="flex flex-col items-center justify-end h-full z-10 w-9">
+          <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
+            <div id="bar-today-fill" class="w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 요일 표기 -->
+      <div class="flex justify-between items-center px-2 pt-2 text-center">
+        <span class="w-9 text-[11px] font-bold text-slate-500">월</span>
+        <span class="w-9 text-[11px] font-bold text-slate-500">화</span>
+        <span class="w-9 text-[11px] font-bold text-slate-500">수</span>
+        <span class="w-9 text-[11px] font-bold text-slate-500">목</span>
+        <span class="w-9 text-[11px] font-bold text-slate-500">금</span>
+        <span class="w-9 text-[11px] font-bold text-slate-500">토</span>
+        <span class="w-9 text-[11px] font-bold text-slate-500">일</span>
+      </div>
+    </div>
+
+    <!-- VIEW 2: 최근 1개월 (2단 분할: 좌측 1~4주차 막대 + 우측 4주 요일별 꺾은선) -->
+    <div id="chart-view-month" class="hidden w-full bg-[#FAF9F5] rounded-2xl p-3 border border-slate-200/60 flex flex-col gap-2">
+      <div class="grid grid-cols-2 gap-3 h-40">
+        
+        <!-- 좌측: 'ㄴ'자 테두리 프레임 + 1~4주차 평균 막대그래프 -->
+        <div class="flex flex-col justify-between">
+          <div class="flex items-center justify-between pb-1">
+            <span class="text-[11px] font-extrabold text-slate-700">주차별 평균</span>
+            <span class="text-[9px] text-slate-400">1~4주</span>
+          </div>
+
+          <!-- 'ㄴ'자 테두리 그래프 영역 (왼쪽 세로선 + 바닥 가로선) -->
+          <div class="relative h-28 w-full border-l-2 border-b-2 border-slate-300 flex items-end justify-around px-1 pt-2">
+            <!-- 50% 가이드 점선 -->
+            <div class="absolute inset-x-0 top-1/2 border-b border-dashed border-slate-200 pointer-events-none"></div>
+
+            <!-- 1주차 -->
+            <div class="flex flex-col items-center justify-end h-full z-10">
+              <div class="w-5 bg-slate-200/50 rounded-t-md h-full flex items-end overflow-hidden">
+                <div class="w-full bg-[#10b981] rounded-t-md shadow-sm" style="height: 88%;"></div>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 mt-1">1주</span>
+            </div>
+
+            <!-- 2주차 -->
+            <div class="flex flex-col items-center justify-end h-full z-10">
+              <div class="w-5 bg-slate-200/50 rounded-t-md h-full flex items-end overflow-hidden">
+                <div class="w-full bg-[#3b82f6] rounded-t-md shadow-sm" style="height: 78%;"></div>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 mt-1">2주</span>
+            </div>
+
+            <!-- 3주차 -->
+            <div class="flex flex-col items-center justify-end h-full z-10">
+              <div class="w-5 bg-slate-200/50 rounded-t-md h-full flex items-end overflow-hidden">
+                <div class="w-full bg-[#10b981] rounded-t-md shadow-sm" style="height: 92%;"></div>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 mt-1">3주</span>
+            </div>
+
+            <!-- 4주차 (이번주) -->
+            <div class="flex flex-col items-center justify-end h-full z-10">
+              <div class="w-5 bg-slate-200/50 rounded-t-md h-full flex items-end overflow-hidden">
+                <div class="w-full bg-[#3b82f6] rounded-t-md shadow-sm" style="height: 82%;"></div>
+              </div>
+              <span class="text-[10px] font-bold text-slate-500 mt-1">4주</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 우측: 'ㄴ'자 테두리 프레임 + 4주(한달) 요일별 꺾은선 그래프 -->
+        <div class="flex flex-col justify-between">
+          <div class="flex items-center justify-between pb-1">
+            <span class="text-[11px] font-extrabold text-slate-700">4주간 일별 추이</span>
+            <span class="text-[9px] text-slate-400">월간 상세</span>
+          </div>
+
+          <!-- 'ㄴ'자 테두리 SVG 꺾은선 영역 -->
+          <div class="relative h-28 w-full border-l-2 border-b-2 border-slate-300 flex items-end justify-center">
+            <!-- 50% 가이드 점선 -->
+            <div class="absolute inset-x-0 top-1/2 border-b border-dashed border-slate-200 pointer-events-none"></div>
+
+            <!-- 4주 28포인트 꺾은선 SVG -->
+            <svg class="w-full h-full overflow-visible" viewBox="0 0 160 100" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="monthGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"></stop>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"></stop>
+                </linearGradient>
+              </defs>
+              
+              <!-- 꺾은선 아래 은은한 채우기 영역 -->
+              <polygon points="5,100 5,30 20,25 35,40 50,20 65,35 80,48 95,22 110,18 125,32 140,20 155,26 155,100" fill="url(#monthGrad)"></polygon>
+              
+              <!-- 유려한 꺾은선 (월간 요일별 굴곡) -->
+              <polyline points="5,30 20,25 35,40 50,20 65,35 80,48 95,22 110,18 125,32 140,20 155,26" 
+                        fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              
+              <!-- 주요 변곡점 원형 마커 -->
+              <circle cx="5" cy="30" r="2.5" fill="#2563eb"></circle>
+              <circle cx="50" cy="20" r="2.5" fill="#10b981"></circle>
+              <circle cx="80" cy="48" r="2.5" fill="#f59e0b"></circle>
+              <circle cx="110" cy="18" r="2.5" fill="#10b981"></circle>
+              <circle cx="155" cy="26" r="3" fill="#2563eb"></circle>
+            </svg>
+          </div>
+
+          <!-- 우측 하단 1~4주 흐름 축 라벨 -->
+          <div class="flex justify-between items-center text-[9px] font-semibold text-slate-400 pt-1 px-1">
+            <span>1주차</span>
+            <span>2주차</span>
+            <span>3주차</span>
+            <span>4주차</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Comprehensive Status Summary Text -->
+  <section class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col gap-2">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <span class="text-xs font-extrabold text-slate-800">종합 건강 상태 의견</span>
+      <span class="text-[10px] text-slate-400"><span id="summary-period">최근 7일 분석 기준</span></span>
+    </div>
+
+    <p id="summary-text" class="text-[13px] text-slate-700 font-medium leading-relaxed">
+      최근 1주일간 전반적인 건강 상태는 <strong>안정적이고 양호한 흐름</strong>을 보이고 있습니다.<br/>
+      금요일 검진 시 귀 안쪽에 가벼운 붉은기가 감지되었으나 주말 동안 빠르게 호전되었습니다. 현재 컨디션은 정상이므로 평소 식단과 산책 루틴을 그대로 유지해 주시면 됩니다.
+    </p>
+
+    <!-- Care Checklist Notice -->
+    <div id="care-checklist" class="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col gap-1 text-[12px] text-slate-600">
+      <span class="font-bold text-slate-800">생활 관리 권장사항</span>
+      <span>• 일교차에 따른 실내 적정 습도(50~60%) 유지</span>
+      <span>• 주 1회 가벼운 귀 통풍 및 세정 권장</span>
+    </div>
+  </section>
+
+  <!-- Standard Unified 4-Tab Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 h-[62px] flex justify-around items-center px-3 py-1.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl max-w-[430px] mx-auto right-0">
+  <!-- Tab: 홈 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="01_dashboard.html">
+    <span class="material-symbols-outlined text-[20px]">home</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">홈</span>
+  </a>
+  <!-- Tab: 건강체크 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="02_camera_scan.html">
+    <span class="material-symbols-outlined text-[20px]">vital_signs</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">건강체크</span>
+  </a>
+  <!-- Tab: 건강상태 (Active) -->
+  <a class="flex flex-col items-center justify-center bg-[#FFDAD4] text-[#AC3323] rounded-full px-4 py-1 active:scale-95 transition-transform" href="03_scan_report.html">
+    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+    <span class="text-[10px] font-extrabold mt-0.5 leading-none">건강상태</span>
+  </a>
+  <!-- Tab: 마이 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="04_health_diary_charts.html">
+    <span class="material-symbols-outlined text-[20px]">person</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">마이</span>
+  </a>
+</nav>
+<!-- iOS Home Bar Indicator -->
+<div class="fixed bottom-1 left-1/2 -translate-x-1/2 w-28 h-1 bg-slate-300 rounded-full z-50 pointer-events-none"></div>
+
+</main>
+
+<script>
+  // 5대 문진 항목 점수 계산 함수 (100점 만점 환산)
+  function calculateIntakeScore(data) {
+    let score = 0;
+    if (data.appetite === '완밥') score += 25;
+    else if (data.appetite === '조금남김') score += 15;
+
+    if (data.vital === '쌩쌩함') score += 25;
+    else if (data.vital === '보통') score += 18;
+
+    if (data.stool === '황금변') score += 20;
+    else if (data.stool.includes('딱딱') || data.stool.includes('변비')) score += 12;
+
+    if (data.water === '적당함') score += 15;
+    else if (data.water === '많이마심') score += 10;
+
+    if (data.walk === '30분이상') score += 15;
+    else if (data.walk.includes('10~20')) score += 10;
+
+    return Math.max(0, Math.min(100, score));
+  }
+
+  // 오늘 체크 데이터 가져오기
+  function getTodayCheckData() {
+    const today = new Date().toLocaleDateString('ko-KR');
+    const saved = localStorage.getItem('pet_daily_intake_' + today);
+    if (!saved) return null;
+    try {
+      return JSON.parse(saved);
+    } catch(e) {
+      return null;
+    }
+  }
+
+  // 기간 탭 전환 (최근 1주일 vs 최근 1개월) 및 종합 의견 문구 갱신
+  // 우리 내부 맞춤형 케어 룰셋 엔진 (초고속 반응 & 무료)
+  function getCustomCareTips(data) {
+    const tips = [];
+    if (!data) {
+      return [
+        '• 일교차에 따른 실내 적정 습도(50~60%) 유지',
+        '• 주 1회 가벼운 귓속 통풍 및 세정 권장'
+      ];
+    }
+
+    // 1. 대변 상태 체크
+    if (data.stool && (data.stool.includes('설사') || data.stool.includes('묽음'))) {
+      tips.push('• [배변] 일시적 장 자극 완화를 위해 당분간 간식을 중단하고 소화식 급여 권장');
+    } else if (data.stool && (data.stool.includes('딱딱') || data.stool.includes('변비'))) {
+      tips.push('• [배변] 원활한 장 운동을 위해 음수량 확대 및 유산균 급여 권장');
+    }
+
+    // 2. 음수량 체크
+    if (data.water === '적음' || data.water === '거의안마심') {
+      tips.push('• [음수] 탈수 예방을 위해 습식 사료 급여나 동선별 물그릇 배치를 권장');
+    } else if (data.water === '많이마심') {
+      tips.push('• [음수] 평소보다 음수량이 급증한 경우 일시적인지 2~3일간 추적 관찰');
+    }
+
+    // 3. 식욕 체크
+    if (data.appetite === '안먹음') {
+      tips.push('• [식욕] 사료를 미온수에 살짝 데워 후각을 자극하거나 소량 분할 급여 권장');
+    } else if (data.appetite === '조금남김') {
+      tips.push('• [식욕] 간식 섭취량이 많았는지 확인하고 규칙적인 정시 급여 유지 권장');
+    }
+
+    // 4. 활력 체크
+    if (data.vital === '축처짐') {
+      tips.push('• [활력] 무리한 운동을 피하고 조용하고 따뜻한 환경에서 충분한 휴식 유도');
+    }
+
+    // 5. 산책 체크
+    if (data.walk === '안함' || data.walk === '0분') {
+      tips.push('• [활동] 야외 산책이 어려울 경우 실내 노즈워크나 가벼운 터그놀이 권장');
+    }
+
+    // 6. 카메라 AI 진단 결과가 로컬에 있는 경우 자동 조합
+    const lastScanResult = localStorage.getItem('pet_last_scan_result');
+    if (lastScanResult) {
+      try {
+        const scanObj = JSON.parse(lastScanResult);
+        if (scanObj.part && scanObj.careTip) {
+          tips.push(`• [${scanObj.part} 스캔 연동] ${scanObj.careTip}`);
+        }
+      } catch(e) {}
+    }
+
+    // 모든 항목이 건강할 때의 기본 유지 팁
+    if (tips.length === 0) {
+      tips.push('• [양호] 현재 컨디션과 소화 상태가 매우 우수합니다. 현재 식단 유지');
+      tips.push('• [일상] 규칙적인 산책과 함께 음수 상태를 일정하게 관리해 주세요');
+    }
+
+    return tips.slice(0, 3); // 가장 중요한 최대 3개 항목 표시
+  }
+
+  function setPeriod(period) {
+    const tabWeek = document.getElementById('tab-week');
+    const tabMonth = document.getElementById('tab-month');
+    const viewWeek = document.getElementById('chart-view-week');
+    const viewMonth = document.getElementById('chart-view-month');
+    const chartTitle = document.getElementById('chart-title');
+    const summaryPeriod = document.getElementById('summary-period');
+    const summaryText = document.getElementById('summary-text');
+    const careChecklist = document.getElementById('care-checklist');
+
+    const checkData = getTodayCheckData();
+
+    if (period === 'month') {
+      // 1개월 탭 활성화
+      tabMonth.className = 'py-2 rounded-lg font-bold text-xs bg-white text-slate-900 shadow-sm transition-all cursor-pointer';
+      tabWeek.className = 'py-2 rounded-lg font-bold text-xs text-slate-600 hover:text-slate-900 transition-all cursor-pointer';
+      viewWeek.classList.add('hidden');
+      viewMonth.classList.remove('hidden');
+      chartTitle.innerText = '월간 종합 건강 컨디션 추이';
+      if (summaryPeriod) summaryPeriod.innerText = '최근 30일 분석 기준';
+
+      // 1개월 종합 의견 동적 생성
+      if (checkData) {
+        summaryText.innerHTML = `
+          지난 4주간(1개월) 전반적인 컨디션은 <strong>1주차와 3주차에 최상, 2주차에 가벼운 주의 구간</strong>을 거치며 안정적인 회복세를 유지하고 있습니다.<br/>
+          특히 오늘 문진 체크(식욕: <strong>${checkData.appetite || '양호'}</strong>, 활력: <strong>${checkData.vital || '보통'}</strong>, 대변: <strong>${checkData.stool || '정상'}</strong>) 기록이 잘 반영되어 4주차 종합 추이가 <strong>안정적 정상 궤도</strong>에 진입했습니다.
+        `;
+      } else {
+        summaryText.innerHTML = `
+          지난 4주간(1개월) 전반적인 건강 컨디션은 <strong>월간 평균 82점(양호)</strong> 수준으로 큰 질환 없이 꾸준히 건강한 흐름을 이어가고 있습니다.<br/>
+          월 중반에 일시적 컨디션 저하가 관찰되었으나 주차별 관리를 통해 양호 상태를 회복하였습니다.
+        `;
+      }
+
+      if (careChecklist) {
+        careChecklist.innerHTML = `
+          <span class="font-bold text-slate-800">월간 장기 건강 권장사항</span>
+          <span>• 지난 4주간 체중 및 식사량 주기적 모니터링 유지</span>
+          <span>• 월 1회 정기 심장사상충 및 내외부 구충제 복용 권장</span>
+          <span>• 계절별 털갈이 및 피부 상태 정기 육안 점검 권장</span>
+        `;
+      }
+
+    } else {
+      // 1주일 탭 활성화
+      tabWeek.className = 'py-2 rounded-lg font-bold text-xs bg-white text-slate-900 shadow-sm transition-all cursor-pointer';
+      tabMonth.className = 'py-2 rounded-lg font-bold text-xs text-slate-600 hover:text-slate-900 transition-all cursor-pointer';
+      viewMonth.classList.add('hidden');
+      viewWeek.classList.remove('hidden');
+      chartTitle.innerText = '주간 건강 컨디션 추이';
+      if (summaryPeriod) summaryPeriod.innerText = '최근 7일 분석 기준';
+
+      // 1주일 종합 의견 동적 생성
+      if (checkData) {
+        summaryText.innerHTML = `
+          최근 1주일간 전반적인 건강 상태는 <strong>안정적이고 양호한 흐름</strong>을 보이고 있습니다.<br/>
+          오늘 직접 체크하신 문진(식욕: <strong>${checkData.appetite || '완밥'}</strong>, 음수: <strong>${checkData.water || '적당함'}</strong>, 활력: <strong>${checkData.vital || '쌩쌩함'}</strong>)에 따라 오늘 건강 점수가 즉시 반영되었습니다.
+        `;
+      } else {
+        summaryText.innerHTML = `
+          최근 1주일간 전반적인 건강 상태는 <strong>안정적이고 양호한 흐름</strong>을 보이고 있습니다.<br/>
+          금요일 검진 시 귀 안쪽에 가벼운 붉은기가 감지되었으나 주말 동안 빠르게 호전되었습니다. 오늘 건강체크 문진을 완료하시면 실시간 분석 의견이 반영됩니다.
+        `;
+      }
+
+      // 우리 내부 룰셋에서 추출한 맞춤 권장사항 렌더링
+      if (careChecklist) {
+        const tips = getCustomCareTips(checkData);
+        careChecklist.innerHTML = `
+          <span class="font-bold text-slate-800">생활 관리 권장사항 (오늘 맞춤 케어)</span>
+          ${tips.map(t => `<span>${t}</span>`).join('')}
+        `;
+      }
+    }
+  }
+
+  // 상단 원형 링, 5대 막대, 주간 일요일 막대 실시간 동기화
+  
+  // Gemini AI 기반 매일 새로운 맞춤형 생활 케어 권장사항 호출
+  async function fetchGeminiAdvice(checkData) {
+    if (!checkData) return;
+    const today = new Date().toLocaleDateString('ko-KR');
+    const cacheKey = 'pet_daily_ai_advice_' + today;
+    
+    // 이미 오늘 생성된 AI 조언이 있으면 재사용 (불필요한 반복 호출 방지)
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const advice = JSON.parse(cached);
+        applyAiAdviceToUI(advice);
+        return;
+      } catch(e) {}
+    }
+
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/api/advice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: checkData })
+      });
+      if (!resp.ok) return;
+      const res = await resp.json();
+      if (res.status === 'success' && res.advice) {
+        localStorage.setItem(cacheKey, JSON.stringify(res.advice));
+        applyAiAdviceToUI(res.advice);
+      }
+    } catch(err) {
+      console.log('AI Advice fetch skipped, using rule engine.');
+    }
+  }
+
+  function applyAiAdviceToUI(advice) {
+    const summaryText = document.getElementById('summary-text');
+    const careChecklist = document.getElementById('care-checklist');
+    
+    if (advice.summary && summaryText) {
+      summaryText.innerHTML = `
+        최근 1주일간 전반적인 건강 상태는 <strong>안정적이고 양호한 흐름</strong>을 보이고 있습니다.<br/>
+        <strong>[AI 수의학 데일리 코칭]</strong> ${advice.summary}
+      `;
+    }
+
+    if (advice.tips && advice.tips.length > 0 && careChecklist) {
+      careChecklist.innerHTML = `
+        <div class="flex items-center justify-between pb-1">
+          <span class="font-bold text-slate-800">생활 관리 권장사항</span>
+          <span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full border border-blue-200">Gemini AI 맞춤</span>
+        </div>
+        ${advice.tips.map(tip => `<span>• ${tip}</span>`).join('')}
+      `;
+    }
+  }
+
+window.addEventListener('DOMContentLoaded', () => {
+    const data = getTodayCheckData();
+    if (data) {
+      try {
+        // 식욕
+        const bApp = document.getElementById('bar-appetite');
+        if (bApp) {
+          if (data.appetite === '완밥') { bApp.style.height = '100%'; bApp.className = 'w-full bg-[#10b981] rounded-t-sm'; }
+          else if (data.appetite === '조금남김') { bApp.style.height = '60%'; bApp.className = 'w-full bg-[#f59e0b] rounded-t-sm'; }
+          else { bApp.style.height = '25%'; bApp.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
+        }
+
+        // 음수
+        const bWat = document.getElementById('bar-water');
+        if (bWat) {
+          if (data.water === '적당함') { bWat.style.height = '90%'; bWat.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
+          else if (data.water === '많이마심') { bWat.style.height = '85%'; bWat.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
+          else { bWat.style.height = '30%'; bWat.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
+        }
+
+        // 대변
+        const bStool = document.getElementById('bar-stool');
+        if (bStool) {
+          if (data.stool === '황금변') { bStool.style.height = '100%'; bStool.className = 'w-full bg-[#10b981] rounded-t-sm'; }
+          else if (data.stool.includes('설사')) { bStool.style.height = '35%'; bStool.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
+          else { bStool.style.height = '50%'; bStool.className = 'w-full bg-[#f59e0b] rounded-t-sm'; }
+        }
+
+        // 산책
+        const bWalk = document.getElementById('bar-walk');
+        if (bWalk) {
+          if (data.walk === '30분이상') { bWalk.style.height = '100%'; bWalk.className = 'w-full bg-[#10b981] rounded-t-sm'; }
+          else if (data.walk.includes('10~20')) { bWalk.style.height = '65%'; bWalk.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
+          else { bWalk.style.height = '20%'; bWalk.className = 'w-full bg-[#f59e0b] rounded-t-sm'; }
+        }
+
+        // 활력
+        const bVit = document.getElementById('bar-vital');
+        if (bVit) {
+          if (data.vital === '쌩쌩함') { bVit.style.height = '100%'; bVit.className = 'w-full bg-[#10b981] rounded-t-sm'; }
+          else if (data.vital === '보통') { bVit.style.height = '70%'; bVit.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
+          else { bVit.style.height = '25%'; bVit.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
+        }
+
+        // 도넛 링 상태
+        const dStat = document.getElementById('donut-status');
+        const dCirc = document.getElementById('donut-circle');
+        if (dStat && dCirc) {
+          if (data.vital === '축처짐' || (data.stool && data.stool.includes('설사')) || data.appetite === '안먹음') {
+            dStat.innerText = '주의';
+            dStat.className = 'text-xs font-black text-amber-500 leading-tight';
+            dCirc.setAttribute('stroke', '#f59e0b');
+            dCirc.setAttribute('stroke-dashoffset', '60');
+          } else {
+            dStat.innerText = '양호';
+            dStat.className = 'text-xs font-black text-emerald-600 leading-tight';
+            dCirc.setAttribute('stroke', '#10b981');
+            dCirc.setAttribute('stroke-dashoffset', '20');
+          }
+        }
+
+        // 오늘(일요일) 와이드 막대그래프 연동 (50 밑으로 내려가지 않음)
+        const todayFill = document.getElementById('bar-today-fill');
+        if (todayFill) {
+          const rawScore = calculateIntakeScore(data);
+          const displayScore = Math.max(50, Math.min(100, rawScore));
+          todayFill.style.height = displayScore + '%';
+
+          if (rawScore >= 88) {
+            todayFill.className = 'w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm';
+          } else if (rawScore >= 75) {
+            todayFill.className = 'w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm';
+          } else if (rawScore >= 63) {
+            todayFill.className = 'w-full bg-[#f59e0b] rounded-t-lg transition-all duration-500 shadow-sm';
+          } else {
+            todayFill.className = 'w-full bg-[#ef4444] rounded-t-lg transition-all duration-500 shadow-sm';
+          }
+        }
+      } catch(e) {}
+    } else {
+      const todayFill = document.getElementById('bar-today-fill');
+      if (todayFill) todayFill.style.height = '0%';
+    }
+
+    // 초기 기간 탭(주간) 텍스트 렌더링
+    setPeriod('week');
+    if (data) fetchGeminiAdvice(data);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>반려동물 건강 스캔 & 증상 상담</title>
+<!-- Google Fonts: Plus Jakarta Sans & Noto Sans KR -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+
+  let activeMediaStream = null;
+
+  async function startCameraStream() {
+    // navigator.mediaDevices.getUserMedia로 웹캠/스마트폰 카메라 스트림 열기
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('현재 브라우저 환경에서 실시간 카메라를 지원하지 않습니다.');
+      return;
+    }
+
+    try {
+      // 후면 카메라 우선 요청, 안 되면 전면(웹캠)
+      const constraints = {
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      };
+      activeMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      const video = document.getElementById('live-camera-video');
+      video.srcObject = activeMediaStream;
+      await video.play();
+
+      const modal = document.getElementById('live-camera-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    } catch (err) {
+      console.warn('Camera stream error:', err);
+      // 권한 거부 또는 HTTPS 미지원 등으로 실패 시 fallback 안내
+      alert('카메라 권한을 허용해 주시거나 [앨범에서 선택]을 이용해 주세요.');
+    }
+  }
+
+  function stopCameraStream() {
+    if (activeMediaStream) {
+      activeMediaStream.getTracks().forEach(track => track.stop());
+      activeMediaStream = null;
+    }
+    const modal = document.getElementById('live-camera-modal');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+  }
+
+  function captureFromCameraStream() {
+    const video = document.getElementById('live-camera-video');
+    if (!video || !activeMediaStream) return;
+
+    const canvas = document.createElement('canvas');
+    let width = video.videoWidth || 640;
+    let height = video.videoHeight || 480;
+
+    const maxDim = 1024;
+    if (width > maxDim || height > maxDim) {
+      if (width > height) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, width, height);
+
+    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+    // 뷰파인더에 캡처 화면 반영
+    const box = document.getElementById('viewfinder-box');
+    if (box) {
+      box.style.backgroundImage = `url("${currentImageBase64}")`;
+      box.style.backgroundSize = 'cover';
+      box.style.backgroundPosition = 'center';
+    }
+    const vImg = document.getElementById('viewfinder-img');
+    if (vImg) {
+      vImg.src = currentImageBase64;
+      vImg.style.display = 'block';
+    }
+    const overlay = document.getElementById('viewfinder-overlay');
+    if (overlay) overlay.style.display = 'none';
+    const badge = document.getElementById('photo-status-badge');
+    if (badge) badge.style.display = 'block';
+
+    stopCameraStream();
+  }
+
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          primary: "#FF5A43",
+          "on-surface": "#1A1C1E",
+          "on-surface-variant": "#71767B",
+          surface: "#FDFBF7",
+          "surface-container-low": "#F4EFEA",
+          "outline-variant": "#E0DCD7"
+        },
+        fontFamily: {
+          sans: ["'Noto Sans KR'", "'Plus Jakarta Sans'", "sans-serif"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+
+<body class="bg-[#ECE7DF] min-h-screen flex items-center justify-center p-0 md:p-6 font-sans text-on-surface antialiased">
+
+<main class="w-full max-w-[420px] bg-[#FDFBF7] min-h-screen relative flex flex-col justify-between overflow-hidden shadow-2xl">
+
+  <div class="flex-1 flex flex-col p-4 pb-12 gap-3">
+
+    <!-- Top Header -->
+    <header class="flex items-center justify-between pt-2 pb-2 border-b border-outline-variant/20">
+      <button onclick="location.href='01_dashboard.html'" aria-label="이전 화면" class="w-9 h-9 rounded-full flex items-center justify-center bg-white shadow-sm border border-outline-variant/15 text-on-surface active:scale-95 cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+      </button>
+      <div class="text-center">
+        <h1 class="text-base font-extrabold text-on-surface tracking-tight">건강 촬영 & 이상증상 체크</h1>
+      </div>
+      <div class="w-9"></div>
+    </header>
+
+    <!-- [1. 상단] 촬영(스캔) 사각창 -->
+    <section class="bg-white rounded-3xl p-4 pb-3 shadow-sm flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-primary text-[20px]">photo_camera</span>
+          <span class="text-xs font-bold text-slate-800">1. 이상 부위를 사진으로 찍거나 등록!</span>
+        </div>
+        
+      </div>
+
+      <!-- 사각 뷰파인더 상자 (더블 안전장치: img 태그 + 배경 스타일 동시 적용) -->
+      <div id="viewfinder-box" class="relative w-full aspect-[16/9] max-h-[190px] rounded-2xl overflow-hidden bg-slate-100 border border-slate-300 shadow-inner flex items-center justify-center bg-center bg-cover bg-no-repeat transition-all">
+        <!-- 기본 안내 아이콘 및 촬영 가이드 텍스트 -->
+        <div id="viewfinder-overlay" class="flex flex-col items-center justify-center text-center px-4 gap-2">
+          <div class="w-11 h-11 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-600">
+            <span class="material-symbols-outlined text-[24px]">add_a_photo</span>
+          </div>
+          <p class="text-xs font-semibold text-slate-500 leading-snug">
+            피부나 눈 부위가 또렷하게 나오도록 찍어주세요
+          </p>
+        </div>
+
+        <!-- 실제 사진 뷰어 이미지 -->
+        <img id="viewfinder-img" src="" alt="선택한 사진" style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:10;" />
+
+        <!-- 사진 등록 완료 뱃지 -->
+        <div id="photo-status-badge" style="display:none; z-index:20;" class="absolute top-2 right-2 bg-slate-900/80 text-white text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm shadow">
+          사진 등록 완료 ✓
+        </div>
+      </div>
+
+      <!-- 카메라 촬영 및 앨범 선택 버튼 -->
+      <input type="file" id="album-file-input" accept="image/png, image/jpeg, image/jpg, image/webp" style="display:none;" onchange="onFileChanged(event)" />
+      <div class="grid grid-cols-2 gap-2.5 pt-0.5">
+        <button type="button" onclick="startCameraStream()" class="py-[9px] rounded-xl bg-transparent hover:bg-slate-50 border border-slate-300 text-slate-700 hover:border-slate-400 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all select-none">
+          <span class="material-symbols-outlined text-[18px]">photo_camera</span>
+          <span>카메라 촬영</span>
+        </button>
+        <button type="button" onclick="document.getElementById('album-file-input').click()" class="py-[9px] rounded-xl bg-transparent hover:bg-slate-50 border border-slate-300 text-slate-700 hover:border-slate-400 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all select-none">
+          <span class="material-symbols-outlined text-[18px]">photo_library</span>
+          <span>앨범에서 선택</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- [2. 중단] 이상증상 텍스트 입력창 -->
+    <section class="bg-white rounded-3xl p-4 shadow-sm flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-amber-500 text-[20px]">rate_review</span>
+          <span class="text-xs font-bold text-slate-800">2. 오늘 아이의 이상 증상 작성</span>
+        </div>
+        
+      </div>
+
+      <div class="relative">
+        <textarea id="symptom-input" rows="5" placeholder="아이의 증상을 자유롭게 적어주세요.&#10;예) 노란 거품을 토했어요 / 귀를 심하게 긁고 냄새가 나요 / 밥을 안 먹고 눈곱이 많이 껴요" class="w-full text-xs rounded-2xl border border-slate-200 bg-slate-50/50 p-3.5 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all resize-none h-[180px] min-h-[180px]"></textarea>
+        <button onclick="clearSymptomInput()" class="absolute top-2.5 right-2.5 text-slate-400 hover:text-slate-600">
+          <span class="material-symbols-outlined text-[18px]">cancel</span>
+        </button>
+      </div>
+
+      <!-- 분석하기 단추 -->
+      <button onclick="analyzeSymptom()" class="w-full h-11 rounded-xl bg-primary hover:bg-[#E54832] text-white text-[15px] font-bold shadow-md shadow-primary/20 active:scale-95 transition-all flex items-center justify-center cursor-pointer">
+        분석하기
+      </button>
+    </section>
+
+    <!-- [3. 하단] 분석 결과 리포트 패널 -->
+    <section id="result-panel" class="hidden flex-col gap-3 transition-all duration-300">
+      
+      <!-- 신호등 상태 카드 -->
+      <div id="status-card" class="rounded-2xl p-4 border flex flex-col gap-2 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="status-badge-icon" class="material-symbols-outlined text-[22px]"></span>
+            <span id="status-badge-title" class="text-sm font-extrabold"></span>
+          </div>
+          <span id="status-severity-tag" class="text-[10px] font-bold px-2 py-0.5 rounded-full"></span>
+        </div>
+        <p id="status-desc" class="text-xs leading-relaxed"></p>
+      </div>
+
+      <!-- 의심 질환 후보 안내 (원칙: 확정 진단 배제, 후보 2~3가지 및 이유) -->
+      <div id="candidates-box" class="hidden bg-white rounded-2xl p-4 border border-outline-variant/20 shadow-sm flex-col gap-2.5">
+        <span class="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+          <span class="material-symbols-outlined text-[15px] text-primary">stethoscope</span>
+          유사 외관 의심 질환 후보 (확정 진단 아님)
+        </span>
+        <div id="candidates-list" class="space-y-2"></div>
+      </div>
+
+      <!-- 수의학 체크포인트 & 가정 점검 가이드 -->
+      <div class="bg-white rounded-2xl p-4 border border-outline-variant/20 shadow-sm flex flex-col gap-3">
+        <div>
+          <span class="text-[11px] font-bold text-slate-400 block mb-1">🔍 관찰 체크포인트</span>
+          <ul id="checkpoints-list" class="text-xs text-slate-700 space-y-1 list-disc list-inside"></ul>
+        </div>
+
+        <div class="border-t border-slate-100 pt-2.5">
+          <span class="text-[11px] font-bold text-slate-400 block mb-1">🏠 가정 점검 및 생활 습관 조언</span>
+          <div id="home-care-text" class="text-xs text-slate-700 leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1.5"></div>
+        </div>
+
+        <!-- 필수 수의사 대면 진료 권고 문구 -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5 flex items-start gap-2 text-amber-900">
+          <span class="material-symbols-outlined text-[18px] text-amber-600 shrink-0 mt-0.5">notification_important</span>
+          <p class="text-[11px] font-bold leading-snug">
+            지속되거나 악화될 경우 반드시 수의사의 정확한 대면 진료를 받으세요.
+          </p>
+        </div>
+
+        <div class="border-t border-slate-100 pt-2 flex items-center justify-between text-[10px] text-slate-400">
+          <span id="data-source-text">출처: 공공 수의 데이터베이스 & AI 건강 어시스턴트</span>
+          <button onclick="saveSymptomRecord()" class="text-primary font-bold hover:underline flex items-center gap-0.5">
+            <span class="material-symbols-outlined text-[14px]">bookmark</span>
+            <span>히스토리에 저장</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- 실시간 카메라 모달 (PC 웹캠 및 모바일 실시간 촬영) -->
+  <div id="live-camera-modal" class="fixed inset-0 z-50 bg-black/90 hidden flex-col items-center justify-between p-4 backdrop-blur-sm">
+    <div class="w-full max-w-sm flex items-center justify-between text-white pt-2">
+      <span class="text-sm font-bold flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-primary text-[18px]">videocam</span>
+        실시간 카메라 촬영
+      </span>
+      <button onclick="stopCameraStream()" class="text-white/80 hover:text-white p-1 rounded-full">
+        <span class="material-symbols-outlined text-[24px]">close</span>
+      </button>
+    </div>
+
+    <!-- 비디오 스트림 영역 -->
+    <div class="relative w-full max-w-sm aspect-[3/4] rounded-2xl overflow-hidden bg-black flex items-center justify-center border border-white/20 shadow-2xl">
+      <video id="live-camera-video" autoplay playsinline class="w-full h-full object-cover"></video>
+      <div class="absolute inset-4 border-2 border-dashed border-white/40 rounded-xl pointer-events-none"></div>
+    </div>
+
+    <!-- 하단 촬영 버튼 -->
+    <div class="w-full max-w-sm flex items-center justify-center pb-6">
+      <button onclick="captureFromCameraStream()" class="w-16 h-16 rounded-full border-4 border-white bg-primary hover:bg-[#E54832] flex items-center justify-center shadow-lg active:scale-90 transition-all cursor-pointer">
+        <span class="material-symbols-outlined text-white text-[32px]">photo_camera</span>
+      </button>
+    </div>
+  </div>
+
+<!-- Standard Unified 4-Tab Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 h-[62px] flex justify-around items-center px-3 py-1.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl max-w-[430px] mx-auto right-0">
+  <!-- Tab: 홈 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="01_dashboard.html">
+    <span class="material-symbols-outlined text-[20px]">home</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">홈</span>
+  </a>
+  <!-- Tab: 건강체크 (Active) -->
+  <a class="flex flex-col items-center justify-center bg-[#FFDAD4] text-[#AC3323] rounded-full px-4 py-1 active:scale-95 transition-transform" href="02_camera_scan.html">
+    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">vital_signs</span>
+    <span class="text-[10px] font-extrabold mt-0.5 leading-none">건강체크</span>
+  </a>
+  <!-- Tab: 건강상태 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="03_scan_report.html">
+    <span class="material-symbols-outlined text-[20px]">monitoring</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">건강상태</span>
+  </a>
+  <!-- Tab: 마이 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="04_health_diary_charts.html">
+    <span class="material-symbols-outlined text-[20px]">person</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">마이</span>
+  </a>
+</nav>
+<!-- iOS Home Bar Indicator -->
+<div class="fixed bottom-1 left-1/2 -translate-x-1/2 w-28 h-1 bg-slate-300 rounded-full z-50 pointer-events-none"></div>
+</main>
+
+<script>
+
+  let activeMediaStream = null;
+
+  async function startCameraStream() {
+    // navigator.mediaDevices.getUserMedia로 웹캠/스마트폰 카메라 스트림 열기
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert('현재 브라우저 환경에서 실시간 카메라를 지원하지 않습니다.');
+      return;
+    }
+
+    try {
+      // 후면 카메라 우선 요청, 안 되면 전면(웹캠)
+      const constraints = {
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      };
+      activeMediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+      const video = document.getElementById('live-camera-video');
+      video.srcObject = activeMediaStream;
+      await video.play();
+
+      const modal = document.getElementById('live-camera-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    } catch (err) {
+      console.warn('Camera stream error:', err);
+      // 권한 거부 또는 HTTPS 미지원 등으로 실패 시 fallback 안내
+      alert('카메라 권한을 허용해 주시거나 [앨범에서 선택]을 이용해 주세요.');
+    }
+  }
+
+  function stopCameraStream() {
+    if (activeMediaStream) {
+      activeMediaStream.getTracks().forEach(track => track.stop());
+      activeMediaStream = null;
+    }
+    const modal = document.getElementById('live-camera-modal');
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+  }
+
+  function captureFromCameraStream() {
+    const video = document.getElementById('live-camera-video');
+    if (!video || !activeMediaStream) return;
+
+    const canvas = document.createElement('canvas');
+    let width = video.videoWidth || 640;
+    let height = video.videoHeight || 480;
+
+    const maxDim = 1024;
+    if (width > maxDim || height > maxDim) {
+      if (width > height) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, width, height);
+
+    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+
+    // 뷰파인더에 캡처 화면 반영
+    const box = document.getElementById('viewfinder-box');
+    if (box) {
+      box.style.backgroundImage = `url("${currentImageBase64}")`;
+      box.style.backgroundSize = 'cover';
+      box.style.backgroundPosition = 'center';
+    }
+    const vImg = document.getElementById('viewfinder-img');
+    if (vImg) {
+      vImg.src = currentImageBase64;
+      vImg.style.display = 'block';
+    }
+    const overlay = document.getElementById('viewfinder-overlay');
+    if (overlay) overlay.style.display = 'none';
+    const badge = document.getElementById('photo-status-badge');
+    if (badge) badge.style.display = 'block';
+
+    stopCameraStream();
+  }
+
+  const symptomsDB = [{"id": "V01", "keywords": ["축 처짐", "기운 없음", "잠만 잠", "움직이지 않음", "부르면 안 일어남", "무기력"], "category": "활력/컨디션", "severity": "주의", "checkpoints": ["최근 격렬한 산책 여부", "귀/배 부위 열감(39.5도 이상)", "좋아하는 간식에 무반응"], "home_care": "조용하고 따뜻한 곳에서 반나절 휴식. 물도 거부하거나 24시간 이상 지속 시 탈수 점검 권장.", "expert_source": "농진청 반려견 표준 가이드: 성견 정상 체온은 38~39도입니다."}, {"id": "V02", "keywords": ["갑작스러운 흥분", "불안해함", "계속 낑낑거림", "한자리에서 맴돎", "안절부절"], "category": "활력/컨디션", "severity": "주의", "checkpoints": ["배를 만졌을 때 단단하게 긴장되어 있는지", "특정 부위 터치 시 회피/비명", "낯선 소음 환경"], "home_care": "신체 통증이나 복부 팽만(가스) 신호일 수 있습니다. 사료 급여를 멈추고 부드럽게 마사지하며 관찰하세요.", "expert_source": "수의사 Q&A: 복부 팽만과 안절부절은 급성 위확장증 전조일 수 있습니다."}, {"id": "V03", "keywords": ["몸을 덜덜 떰", "오한", "구석에 숨음", "떨림 증상"], "category": "활력/컨디션", "severity": "주의/확인", "checkpoints": ["실내 온도가 너무 낮은지", "천둥/폭죽 등 공포 요인", "근육 경련 또는 통증"], "home_care": "담요로 체온을 유지해주고 안정적인 공간을 제공하세요. 실내 온도가 정상인데 1시간 이상 떤다면 통증 호소입니다.", "expert_source": "펫닥 상담: 추위 외에 췌장염 복통이나 디스크 초기에도 심한 몸 떨림이 나타납니다."}, {"id": "V04", "keywords": ["벽에 머리를 박고 있음", "멍하니 서 있음", "초점 없는 눈"], "category": "활력/컨디션", "severity": "위험/즉시내원", "checkpoints": ["벽이나 구석에 머리를 대고 가만히 있는지(Head Pressing)", "보행 비틀거림", "인지장애(노령견)"], "home_care": "헤드 프레싱은 신경계 이상(뇌압 상승, 간문맥전신단락증)의 대표 증상입니다. 집에서 처치하지 마시고 즉시 내원하세요.", "expert_source": "대한수의사회 응급 가이드: 머리를 벽에 밀착하는 행동은 응급 뇌신경 질환 징후입니다."}, {"id": "D01", "keywords": ["노란 거품 토", "공복 토", "노란색 구토"], "category": "소화/배변", "severity": "양호/주의", "checkpoints": ["마지막 식사 시간이 12시간 이상 지났는지", "사료 토가 아닌 순수 담즙 거품인지"], "home_care": "공복 시간이 길어 위산/담즙이 역류한 현상입니다. 사료 급여 간격을 좁혀주거나 잠들기 전 소량의 사료를 급여하세요.", "expert_source": "농진청 소화기 가이드: 공복토가 주 2회 이상 반복되면 만성 위염으로 진행될 수 있습니다."}, {"id": "D02", "keywords": ["풀 뜯어먹고 토함", "풀 토", "초록색 구토"], "category": "소화/배변", "severity": "양호", "checkpoints": ["토사물에 풀잎 외에 이물질이 있는지", "구토 후 바로 활력을 되찾았는지"], "home_care": "속이 더부룩하거나 섬유질 섭취 본능으로 풀을 먹고 토하는 경우가 흔합니다. 1회성이고 활력이 좋다면 반나절 절식 후 소량 사료 급여.", "expert_source": "수의사 상담: 풀에 제초제나 살충제가 묻어있을 위험이 있으므로 길가 풀 섭취는 제지해야 합니다."}, {"id": "D03", "keywords": ["사료 그대로 토함", "먹자마자 토", "사료 토"], "category": "소화/배변", "severity": "양호", "checkpoints": ["사료를 급하게 씹지 않고 삼켰는지", "식사 직후 격렬하게 뛰놀았는지"], "home_care": "소화 전 역류 증상입니다. 슬로우 식기나 노즈워크를 활용해 천천히 먹게 유도하고 식후 30분간 안정을 취하게 해주세요.", "expert_source": "펫닥 다빈도 가이드: 급체성 구토는 식기 높이를 가슴 높이로 올려주는 것으로도 크게 개선됩니다."}, {"id": "D04", "keywords": ["묽은 변", "물설사", "진흙 변", "설사"], "category": "소화/배변", "severity": "주의", "checkpoints": ["새로운 사료나 간식을 급여했는지", "산책 시 주워 먹은 것이 있는지", "변에 점액이나 피가 섞였는지"], "home_care": "12시간 동안 사료를 절식하고 미온수를 공급해 탈수를 방지하세요. 유산균을 급여하고 하루 이상 지속 시 병원 진료 필요.", "expert_source": "농진청 가이드: 설사가 지속될 때 탈수 방지를 위한 전해질수 공급이 중요합니다."}, {"id": "D05", "keywords": ["혈변", "붉은 변", "짜장 변", "검은색 똥", "피똥"], "category": "소화/배변", "severity": "위험/즉시내원", "checkpoints": ["선홍색 피(하부 대장/항문 출혈)인지, 검은 짜장색(위/소장 상부 출혈)인지"], "home_care": "소화기 내부 출혈 신호이므로 즉시 사진을 찍어 동물병원으로 이동하세요. 음식이나 약을 임의로 주지 마세요.", "expert_source": "수의사 응급 프로토콜: 흑변(멜레나)은 소화기 궤양이나 이물 장폐색의 강력한 증거입니다."}, {"id": "D06", "keywords": ["변비", "똥을 못 쌈", "변 보려다 주저앉음", "토끼 똥"], "category": "소화/배변", "severity": "주의", "checkpoints": ["하루 이상 배변이 없는지", "변이 돌처럼 딱딱하고 부서지는지", "음수량 부족"], "home_care": "음수량을 늘리고 단호박이나 양배추 삶은 것 등 섬유질을 소량 급여하세요. 배 부위를 시계 방향으로 부드럽게 마사지해 주세요.", "expert_source": "펫닥 가이드: 뼈 간식을 먹은 후 변비가 생겼다면 뼈 가루가 장을 막았을 위험이 있습니다."}, {"id": "E01", "keywords": ["노란 눈곱", "녹색 눈곱", "눈곱 폭발", "눈 비빔"], "category": "눈/안과", "severity": "주의", "checkpoints": ["눈곱이 끈적하고 색이 있는지", "흰자가 충혈되어 있는지", "눈을 찡그리는지"], "home_care": "멸균 생리식염수로 눈 주변을 적셔 닦아내고 넥카라를 채워 상처를 방지하세요. 사람 안약 투여 금지.", "expert_source": "농진청 안과 수칙: 눈 비빔으로 인한 2차 각막 손상이 훨씬 치명적이므로 넥카라가 필수입니다."}, {"id": "E02", "keywords": ["눈물 자국", "눈 밑 젖음", "눈가 악취", "눈물 착색"], "category": "눈/안과", "severity": "양호", "checkpoints": ["속눈썹이나 털이 각막을 찌르는지", "단백질 간식 변경 후 심해졌는지"], "home_care": "마른 거즈로 눈가를 자주 말려주고, 눈 주변 털을 단정히 정리하세요. 사료 단백질원을 점검해 보세요.", "expert_source": "펫닥 Q&A: 눈물 속 포르피린 성분이 햇빛/공기와 만나 붉은 갈색으로 착색됩니다."}, {"id": "E03", "keywords": ["눈이 뿌옇게 흐림", "백탁 현상", "동공 하얌", "각막 혼탁"], "category": "눈/안과", "severity": "주의/확인", "checkpoints": ["수정체 중심이 하얗게 혼탁한지(백내장 의심)", "각막 표면이 푸르스름한지(핵경화/각막염)", "어두운 곳 부딪힘"], "home_care": "시력 저하 위험이 있으므로 가구 배치를 바꾸지 마시고 안과 정밀 검진을 권장합니다.", "expert_source": "수의사 상담: 7세 이상 노령견의 핵경화(단순노화)와 백내장은 육안 구분이 어려워 슬릿 검사가 필요합니다."}, {"id": "ER01", "keywords": ["귀를 미친 듯이 턺", "귀를 긁음", "갈색 귀지", "귀 냄새"], "category": "귀/이비인후과", "severity": "주의", "checkpoints": ["귓속에서 쿰쿰한 냄새가 나는지", "검갈색 가루/진물이 나오는지", "귀 만지면 아파하는지"], "home_care": "면봉으로 파내지 말고 전용 귀 세정제를 3방울 넣고 귀 밑을 조물거려 털어내게 한 후 겉만 닦아주세요.", "expert_source": "농진청 질병 가이드: 면봉 사용은 귀지를 안으로 밀어 넣고 고막을 손상시킬 수 있습니다."}, {"id": "ER02", "keywords": ["귓바퀴가 물풍선처럼 부품", "귀 부어오름", "만두 귀"], "category": "귀/이비인후과", "severity": "위험/확인", "checkpoints": ["귓바퀴 피부 사이에 액체가 찬 것처럼 빵빵한지", "귀 가려움으로 심하게 털었는지"], "home_care": "이개혈종 증상입니다. 방치하면 귀 연골이 영구 변형되므로 병원에서 고인 혈액을 제거해야 합니다.", "expert_source": "수의사회 질환 편람: 가려움으로 머리를 세게 흔들다가 귓바퀴 미세혈관이 터져 발생합니다."}, {"id": "S01", "keywords": ["발을 계속 핥음", "발가락 사이 빨감", "발사탕", "발바닥 습진"], "category": "피부/발바닥", "severity": "주의", "checkpoints": ["산책 후 발바닥을 물로 씻고 덜 말렸는지", "발가락 사이가 붉고 진물 나는지"], "home_care": "물 세척을 줄이고 풋클렌저로 닦은 후 완벽히 건조하세요. 넥카라를 씌워 침이 닿지 않게 차단하는 것이 핵심입니다.", "expert_source": "펫닥 다빈도 상담: 강아지 침 속 효소가 발가락 피부 장벽을 녹여 만성 지간염을 만듭니다."}, {"id": "S02", "keywords": ["배/사타구니 붉은 반점", "좁쌀 뾰루지", "딱지 생김", "농포"], "category": "피부/피모", "severity": "주의", "checkpoints": ["노란 고름 찬 물집이 터져 딱지가 되었는지", "긁거나 핥아서 환부가 번지는지"], "home_care": "클로르헥시딘 성분의 약용 샴푸로 주 1~2회 목욕시키고 거품을 5분간 방치 후 헹궈 건조해 주세요.", "expert_source": "농진청 피부병 수칙: 세균성 모낭염은 습한 실내 환경과 위생 불량에서 호발합니다."}, {"id": "S03", "keywords": ["동그랗게 털 빠짐", "원형 탈모", "가장자리 붉음", "비듬 딱지"], "category": "피부/피모", "severity": "주의/전염성", "checkpoints": ["동전 모양으로 털이 뻥 뚫리듯 빠졌는지", "사람 손이나 팔에도 가려운 붉은 반점이 생겼는지"], "home_care": "곰팡이성 피부염(링웜)은 인수공통 전염병입니다. 만진 후 손을 씻고 격리 후 항진균 치료를 받아야 합니다.", "expert_source": "대한수의사회: 링웜 포자는 환경에서 수개월 생존하므로 침구류 열탕 소독이 병행되어야 합니다."}, {"id": "S04", "keywords": ["엉덩이를 바닥에 끌고 다님", "똥꼬스키", "항문 핥음", "비린내 악취"], "category": "피부/항문", "severity": "양호/주의", "checkpoints": ["항문 4시, 8시 방향이 볼록한지", "배변 후에도 계속 엉덩이를 바닥에 문지르는지"], "home_care": "항문낭이 가득 찬 신호입니다. 목욕 시 항문 아래쪽을 잡고 위로 부드럽게 짜서 분비물을 배출시켜 주세요.", "expert_source": "펫닥 가이드: 방치할 경우 항문낭 파열로 피부가 찢어질 수 있으므로 월 1~2회 관리가 필요합니다."}, {"id": "S05", "keywords": ["산책 후 진드기", "피부에 검은 벌레", "벌레 물림"], "category": "피부/해충", "severity": "주의/확인", "checkpoints": ["피부에 단단히 붙어있는 진드기가 있는지", "손으로 억지로 떼어내려다 머리가 박혔는지"], "home_care": "손으로 당기지 말고 핀셋으로 피부에 밀착해 머리까지 수직으로 뽑아내고 알코올로 소독하세요. 외부구충제 적용 필수.", "expert_source": "농진청 해충 가이드: 참진드기는 중증열성혈소판감소증후군(SFTS)과 바베시아 원충을 매개합니다."}, {"id": "S06", "keywords": ["농가진", "물집", "노란 물집", "배 물집", "농포", "배에 여드름", "배에 딱지", "배 피부", "강아지 여드름", "Impetigo"], "category": "피부/피모", "severity": "주의/치료필요", "checkpoints": ["주로 털이 적은 배 부위, 사타구니에 노란 고름 찬 작은 물집(농포)이 관찰되는지 확인", "물집이 터지면서 둥근 고리 모양의 노란 딱지(가피)를 형성하는지 관찰", "어린 강아지(면역력 미형성)이거나 위생/습도 문제인지 확인"], "home_care": "절대 손이나 바늘로 물집을 억지로 터뜨리지 마세요! 2차 세균 감염이 번질 수 있습니다. 동물용 클로르헥시딘 소독액으로 부드럽게 닦아주시고, 핥지 못하도록 넥카라를 채워주세요. 전신으로 번지기 전 수의사 진료를 권장합니다.", "expert_source": "대한수의사회 피부학 가이드: 박테리아(포도상구균) 감염에 의한 농가진(Impetigo)은 어린 반려견의 배 부위 다발성 농포가 특징입니다."}, {"id": "S07", "keywords": ["농피증", "고름", "피부 냄새", "각질 고리", "피부 붉음", "표재성 농피증", "Pyoderma"], "category": "피부/피모", "severity": "위험/내원", "checkpoints": ["피부 전반에 붉은 뾰루지와 둥근 각질(표피 잔고리)이 번지는지 확인", "심한 비듬과 함께 쿰쿰한 세균 냄새가 나는지 확인"], "home_care": "약용 샴푸(항균 샴푸) 목욕을 10분간 거품을 낸 뒤 미온수로 깨끗이 헹궈주세요. 반드시 털을 바짝 말려야 합니다. 내복용 항생제 처방이 필요할 수 있습니다.", "expert_source": "농진청 축산과학원 다빈도 질환 1위 피부질환: 세균성 농피증은 조기 항균 처치가 중요합니다."}, {"id": "S08", "keywords": ["발 가려움", "발 핥음", "발 긁음", "지간염", "발가락 붉음", "발사탕", "발 냄새", "Pododermatitis"], "category": "피부/피모", "severity": "주의", "checkpoints": ["발가락 사이 피부가 빨갛게 붓고 축축하게 젖어있는지 확인", "자꾸 발을 핥거나 깨무는 행동(발사탕)을 반복하는지 관찰"], "home_care": "산책 후 발을 물로 씻겼다면 반드시 드라이기로 발가락 사이사이까지 완전히 건조해 주세요. 습기가 차면 효모균이 급증합니다. 핥지 못하게 넥카라를 씌우세요.", "expert_source": "수의학 임상 통계: 지간염(Pododermatitis)은 말라세지아 효모균과 식이 알레르기가 주원인입니다."}, {"id": "M01", "keywords": ["한쪽 뒷다리 들고 걸음", "깽깽이걸음", "다리 절뚝임", "스킵핑 보행"], "category": "관절/골격", "severity": "주의/확인", "checkpoints": ["걸을 때 간헐적으로 뒷다리를 톡톡 들면서 걷는지(슬개골 탈구 전형)", "소형견(말티즈, 푸들, 포메)인지"], "home_care": "슬개골 탈구 2~3기 신호입니다. 미끄럼 방지 매트를 깔고 소파 계단을 설치하세요. 두 발로 서는 행동 절대 금지.", "expert_source": "대한수의사회 통계: 국내 소형견의 70% 이상이 유전성 슬개골 탈구를 겪습니다."}, {"id": "M02", "keywords": ["안아 올릴 때 깽 소리", "계단 못 올라감", "등을 둥글게 꼿꼿이 세움", "디스크 의심"], "category": "관절/골격", "severity": "위험/주의", "checkpoints": ["허리나 등을 만지면 비명을 지르는지", "뒷다리에 힘이 풀려 주저앉는지", "허리가 긴 견종(닥스훈트 등)"], "home_care": "추간판 탈출증(디스크) 위험 징후입니다. 절대 움직이지 못하게 켄넬에 안정시키고 신속히 검진을 받으세요.", "expert_source": "펫닥 정형 가이드: 디스크 신경 마비는 48시간 이내 치료 골든타임이 예후를 결정합니다."}, {"id": "R01", "keywords": ["거위 울음소리 기침", "켁켁거림", "목에 뭐 걸린 소리", "흥분할 때 켁켁"], "category": "호흡기", "severity": "주의", "checkpoints": ["목줄을 당기거나 물 마신 후 거위 소리(혼크음)를 내는지", "단두종이나 소형견인지(기관허탈 의심)"], "home_care": "기관지 협착(기관지 허탈) 신호입니다. 목줄 대신 가슴줄(하네스)로 교체하고 체중 감량과 실내 습도 60%를 유지하세요.", "expert_source": "농진청 호흡기 관리: 목에 압박이 가해지면 기관지가 찌그러져 산소 부족이 악화됩니다."}, {"id": "R02", "keywords": ["돼지 멱따는 소리", "숨을 들이마시며 컥컥", "발작성 재채기", "역재채기"], "category": "호흡기", "severity": "양호", "checkpoints": ["코를 벌렁이며 숨을 들이마실 때 거친 소리가 나는지", "몇십 초 후 스스로 정상으로 돌아오는지"], "home_care": "비인두 자극에 의한 일시적 역재채기(Reverse Sneezing)입니다. 강아지 콧구멍을 1~2초 손가락으로 살짝 막거나 목을 쓸어내려 침을 삼키게 유도하세요.", "expert_source": "수의사 상담: 생명에 무해한 자연스러운 생리 반응으로 대부분 1분 내에 멈춥니다."}, {"id": "R03", "keywords": ["심한 입냄새", "이빨에 노란 돌", "치석", "사료 먹다 흘림", "잇몸 피"], "category": "구강/치아", "severity": "주의", "checkpoints": ["치아와 잇몸 경계에 갈색 치석이 덮여 있는지", "잇몸이 붉고 피가 나는지", "딱딱한 음식을 거부하는지"], "home_care": "치주염 신호입니다. 칫솔질을 부드럽게 시작하고, 치석이 심해 흔들리는 치아가 있다면 스케일링 상담이 필요합니다.", "expert_source": "농진청 구강 가이드: 치주염 세균은 혈관을 타고 들어가 심장판막증과 신장 손상을 유발합니다."}, {"id": "TX01", "keywords": ["초콜릿 먹음", "카카오 먹음", "초코 과자 섭취"], "category": "응급/독성음식", "severity": "위험/즉시응급", "checkpoints": ["섭취한 초콜릿 종류(다크일수록 치명적)와 섭취량", "섭취 후 경과 시간(2시간 이내 골든타임)"], "home_care": "테오브로민 중독으로 심장마비/경련 유발. 집에서 억지로 과산화수소 구토를 유도하지 마시고 포장지를 들고 즉시 24시 응급병원으로 가세요.", "expert_source": "미국동물학대방지협회(ASPCA) 독성 센터: 체중 1kg당 다크초콜릿 1.5g만으로도 심각한 중독을 일으킵니다."}, {"id": "TX02", "keywords": ["포도 먹음", "건포도 섭취", "샤인머스캣 먹음"], "category": "응급/독성음식", "severity": "위험/즉시응급", "checkpoints": ["단 1알이라도 섭취했는지", "섭취 후 구토나 설사 증세가 있는지"], "home_care": "포도는 급성 신부전(콩팥 괴사)을 유발하며 치사량이 정해져 있지 않습니다. 즉시 동물병원에서 위세척 및 수액 처치를 받아야 합니다.", "expert_source": "수의사 응급 프로토콜: 포도 중독은 증상이 나타난 후에는 신장 손상이 이미 진행된 상태입니다."}, {"id": "TX03", "keywords": ["양파 먹음", "짜장면 섭취", "파/마늘 먹음"], "category": "응급/독성음식", "severity": "위험/즉시내원", "checkpoints": ["국물에 우려난 파/양파를 먹었는지", "소변 색이 붉거나 콜라색인지(혈색소뇨)"], "home_care": "알릴 프로필 다이설파이드 성분이 적혈구를 파괴해 용혈성 빈혈을 일으킵니다. 익힌 양파나 국물도 똑같이 치명적이므로 즉시 내원하세요.", "expert_source": "농진청 반려동물 영양 수칙: 양파 중독은 섭취 1~3일 후에 빈혈과 잇몸 창백으로 나타납니다."}, {"id": "TX04", "keywords": ["자일리톨 껌 먹음", "치약 삼킴", "다이어트 빵 섭취"], "category": "응급/독성음식", "severity": "위험/초응급", "checkpoints": ["자일리톨 함유 껌/사탕을 몇 개나 먹었는지", "비틀거리거나 쓰러지는 저혈당 쇼크 여부"], "home_care": "인슐린을 폭발적으로 분비시켜 30분 내 급성 저혈당과 간 괴사를 유발합니다. 1분 1초가 급한 초응급 상황이므로 즉시 병원으로 질주하세요.", "expert_source": "ASPCA 독성 가이드: 초콜릿보다 100배 빠른 흡수 속도로 급성 쇼크를 일으킵니다."}, {"id": "TX05", "keywords": ["닭뼈 먹음", "익힌 뼈 삼킴", "갈비뼈 먹음"], "category": "응급/이물섭취", "severity": "주의/확인", "checkpoints": ["익힌 닭뼈(날카롭게 부러짐)인지", "목에 걸려 켁켁거리거나 침을 흘리는지", "배변 시 뼈 조각 배출 여부"], "home_care": "억지로 토하게 하면 식도가 찢어집니다. 밥이나 빵을 먹이지 마시고 X-ray 검사로 위 내 뼈 크기와 위치를 확인해야 합니다.", "expert_source": "대한수의사회: 익힌 조류 뼈는 종단으로 날카롭게 쪼개져 식도 및 위 천공을 유발합니다."}];
+
+  let currentImageBase64 = null;
+  let lastAiResult = null;
+
+  function selectPetPhoto(isCamera) {
+    const inp = document.getElementById('real-file-input');
+    if (!inp) return;
+    if (isCamera) {
+      inp.setAttribute('capture', 'environment');
+    } else {
+      inp.removeAttribute('capture');
+    }
+    inp.value = '';
+    inp.click();
+  }
+
+  function resizeAndCompressImage(file, maxDimension = 1024, quality = 0.8) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // 가로/세로 1024px 이내, JPEG 0.8 품질 압축
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          console.log(`[클라이언트 압축 완료] 원본: ${img.width}x${img.height} (${Math.round(file.size / 1024)}KB) -> 압축: ${width}x${height} (${Math.round(compressedDataUrl.length * 0.75 / 1024)}KB)`);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function onFileChanged(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    try {
+      // 스마트폰 원본 사진(3~10MB)을 전송 전 1024px 및 JPEG 0.8로 압축
+      currentImageBase64 = await resizeAndCompressImage(file, 1024, 0.8);
+
+      // 1. 배경 이미지 주입
+      const box = document.getElementById('viewfinder-box');
+      if (box) {
+        box.style.backgroundImage = `url("${currentImageBase64}")`;
+        box.style.backgroundSize = 'cover';
+        box.style.backgroundPosition = 'center';
+      }
+
+      // 2. img 태그도 동시에 켜기 (더블 안전장치)
+      const vImg = document.getElementById('viewfinder-img');
+      if (vImg) {
+        vImg.src = currentImageBase64;
+        vImg.style.display = 'block';
+      }
+
+      // 3. 안내 아이콘 숨김
+      const overlay = document.getElementById('viewfinder-overlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
+
+      // 4. 완료 뱃지 표시
+      const badge = document.getElementById('photo-status-badge');
+      if (badge) {
+        badge.style.display = 'block';
+      }
+    } catch (err) {
+      console.error('이미지 압축 처리 실패:', err);
+    }
+  }
+
+  function clearSymptomInput() {
+    document.getElementById('symptom-input').value = '';
+    document.getElementById('result-panel').classList.add('hidden');
+  }
+
+  async function analyzeSymptom() {
+    const query = document.getElementById('symptom-input').value.trim();
+    if (!query && !currentImageBase64) {
+      alert('사진을 등록하거나 아이의 이상 증상을 입력해 주세요.');
+      return;
+    }
+
+    const panel = document.getElementById('result-panel');
+    panel.classList.remove('hidden');
+    panel.classList.add('flex');
+
+    const btn = document.querySelector('button[onclick="analyzeSymptom()"]');
+    const originalBtnText = btn.innerHTML;
+    btn.innerHTML = '<span class="animate-spin inline-block mr-1.5">⏳</span> AI 모델 분석 중...';
+    btn.disabled = true;
+
+    lastAiResult = null;
+    if (currentImageBase64) {
+      try {
+        const resp = await fetch('http://127.0.0.1:8000/api/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: currentImageBase64, query: query })
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.status === 'success') {
+            lastAiResult = data.data || data.primary;
+          }
+        }
+      } catch (err) {
+        console.warn('AI Server offline or local fetch error:', err);
+      }
+    }
+
+    btn.innerHTML = originalBtnText;
+    btn.disabled = false;
+
+    // 검색 쿼리와 매칭
+    let matched = null;
+    let maxMatch = 0;
+
+    for (const item of symptomsDB) {
+      let score = 0;
+      for (const kw of item.keywords) {
+        if (query.includes(kw) || kw.includes(query)) {
+          score += 2;
+        }
+        const words = kw.split(' ');
+        for (const w of words) {
+          if (w.length >= 2 && query.includes(w)) {
+            score += 1;
+          }
+        }
+      }
+      if (score > maxMatch) {
+        maxMatch = score;
+        matched = item;
+      }
+    }
+
+    if (!matched) {
+      matched = {
+        severity: "주의",
+        category: "일반 컨디션",
+        keywords: [query],
+        checkpoints: ["식욕 및 음수량이 평소의 50% 이하로 떨어지는지 확인", "24시간 이상 같은 이상 징후가 지속되는지 관찰"],
+        home_care: "충분한 휴식을 취하게 하고 스트레스를 줄여주세요.",
+        expert_source: "대한수의사회 표준 보호자 홈케어 가이드"
+      };
+    }
+
+    renderResult(matched, query);
+  }
+
+  function renderResult(item, originalQuery) {
+    const card = document.getElementById('status-card');
+    const badgeIcon = document.getElementById('status-badge-icon');
+    const badgeTitle = document.getElementById('status-badge-title');
+    const severityTag = document.getElementById('status-severity-tag');
+    const desc = document.getElementById('status-desc');
+
+    const candBox = document.getElementById('candidates-box');
+    const candList = document.getElementById('candidates-list');
+    const homeCareDiv = document.getElementById('home-care-text');
+
+    const severity = (lastAiResult && lastAiResult.severity) || item.severity;
+    const isUrgent = severity.includes('응급') || severity.includes('위험') || severity.includes('경고');
+    const isCare = severity.includes('주의');
+
+    if (isUrgent) {
+      card.className = 'rounded-2xl p-4 border border-red-200 bg-red-50/70 text-red-950 flex flex-col gap-2 shadow-sm';
+      badgeIcon.innerText = 'warning';
+      badgeIcon.className = 'material-symbols-outlined text-[22px] text-red-600';
+      badgeTitle.innerText = '주의 깊은 관리 및 내원 권장';
+      severityTag.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-600 text-white';
+      severityTag.innerText = '수의사 대면 진료 권장';
+    } else if (isCare) {
+      card.className = 'rounded-2xl p-4 border border-amber-200 bg-amber-50/70 text-amber-950 flex flex-col gap-2 shadow-sm';
+      badgeIcon.innerText = 'info';
+      badgeIcon.className = 'material-symbols-outlined text-[22px] text-amber-600';
+      badgeTitle.innerText = '경과 관찰 및 생활 점검 필요';
+      severityTag.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white';
+      severityTag.innerText = '추이 관찰 및 생활 관리';
+    } else {
+      card.className = 'rounded-2xl p-4 border border-emerald-200 bg-emerald-50/70 text-emerald-950 flex flex-col gap-2 shadow-sm';
+      badgeIcon.innerText = 'check_circle';
+      badgeIcon.className = 'material-symbols-outlined text-[22px] text-emerald-600';
+      badgeTitle.innerText = '안정적 상태 / 경증 관리';
+      severityTag.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white';
+      severityTag.innerText = '가정 홈케어 권장';
+    }
+
+    // 1 & 2. 절대 확정 진단 배제 + 객관적 외관 특징 설명
+    if (lastAiResult && lastAiResult.observations) {
+      desc.innerText = lastAiResult.observations;
+    } else {
+      desc.innerText = item.desc || '보호자 문진 및 등록된 사진을 바탕으로 외관상 특징을 종합 분석했습니다.';
+    }
+
+    // 3. 의심 질환 후보 2~3가지 및 이유 표시
+    candList.innerHTML = '';
+    if (lastAiResult && lastAiResult.candidates && lastAiResult.candidates.length > 0) {
+      candBox.classList.remove('hidden');
+      candBox.classList.add('flex');
+      lastAiResult.candidates.forEach((cand, idx) => {
+        const cDiv = document.createElement('div');
+        cDiv.className = 'p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-0.5';
+        cDiv.innerHTML = `
+          <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+            <span class="w-4 h-4 rounded-full bg-primary/10 text-primary text-[10px] flex items-center justify-center font-bold">${idx + 1}</span>
+            <span>${cand.disease}</span>
+          </div>
+          <p class="text-[11px] text-slate-600 pl-5.5 leading-relaxed">${cand.reason}</p>
+        `;
+        candList.appendChild(cDiv);
+      });
+    } else {
+      candBox.classList.add('hidden');
+    }
+
+    // 체크포인트 채우기
+    const list = document.getElementById('checkpoints-list');
+    list.innerHTML = '';
+    (item.checkpoints || ['환부의 부종이나 붉은기가 번지는지 확인', '24시간 이상 같은 이상 징후가 지속되는지 관찰']).forEach(cp => {
+      const li = document.createElement('li');
+      li.innerText = cp;
+      list.appendChild(li);
+    });
+
+    // 4. 가정 점검 생활 습관 조언 채우기 (식이 변경, 침구 세탁, 환경 습도 등)
+    homeCareDiv.innerHTML = '';
+    if (lastAiResult && lastAiResult.home_care && Array.isArray(lastAiResult.home_care)) {
+      lastAiResult.home_care.forEach(care => {
+        const p = document.createElement('p');
+        p.className = 'flex items-start gap-1.5';
+        p.innerHTML = `<span class="text-primary font-bold">•</span><span>${care}</span>`;
+        homeCareDiv.appendChild(p);
+      });
+    } else {
+      const p = document.createElement('p');
+      p.innerText = item.home_care || '청결한 물을 공급하고 안정을 취하게 해주세요.';
+      homeCareDiv.appendChild(p);
+    }
+
+    document.getElementById('data-source-text').innerText = '공공 수의 데이터베이스 & AI 건강 어시스턴트';
+
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  }
+
+  function saveSymptomRecord() {
+    const input = document.getElementById('symptom-input').value.trim();
+    if (!input) return;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const existing = JSON.parse(localStorage.getItem('pet_symptom_records') || '[]');
+    existing.unshift({
+      date: dateStr,
+      symptom: input,
+      time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+    });
+    localStorage.setItem('pet_symptom_records', JSON.stringify(existing));
+    alert('오늘의 증상 상담 기록이 저장되었습니다! (통계/히스토리 연동)');
+  }
+</script>
+
+</body>
+</html>

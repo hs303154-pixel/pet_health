@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+models/*.pt
+models/*.pth
+gemini_test_out.json
+gemini_paw_out.json
+test_gemini*.py
+node_modules/
+android/
+루이의건강_테스트용.apk
+루이의건강_테스트용.zip

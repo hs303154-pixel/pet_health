@@ -1,0 +1,6 @@
+{
+  "appId": "com.pethealth.care",
+  "appName": "루이의 건강",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

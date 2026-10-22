@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+<html lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>뽀삐 건강 다이어리 &amp; 웰니스 통계</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans+KR:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary": "#674bb5",
+            "surface": "#faf8ff",
+            "surface-container-high": "#e4e7fe",
+            "on-primary-fixed-variant": "#8a1a0e",
+            "surface-container": "#ebedff",
+            "secondary-fixed": "#70f8e8",
+            "on-tertiary-container": "#3b1988",
+            "surface-bright": "#faf8ff",
+            "on-secondary-fixed": "#00201d",
+            "surface-dim": "#d6d9ef",
+            "on-tertiary": "#ffffff",
+            "on-secondary": "#ffffff",
+            "on-error": "#ffffff",
+            "on-tertiary-fixed": "#21005e",
+            "on-secondary-container": "#007168",
+            "background": "#faf8ff",
+            "error": "#ba1a1a",
+            "outline-variant": "#e0bfba",
+            "on-secondary-fixed-variant": "#005049",
+            "on-primary-fixed": "#400100",
+            "inverse-surface": "#2c3041",
+            "on-tertiary-fixed-variant": "#4f319c",
+            "on-primary": "#ffffff",
+            "surface-variant": "#dee1f8",
+            "on-surface": "#171b2b",
+            "surface-tint": "#ac3323",
+            "error-container": "#ffdad6",
+            "secondary-fixed-dim": "#4fdbcc",
+            "secondary-container": "#70f8e8",
+            "surface-container-lowest": "#ffffff",
+            "primary-fixed-dim": "#ffb4a7",
+            "primary-container": "#ff6f59",
+            "outline": "#8c716c",
+            "primary": "#ac3323",
+            "tertiary-fixed": "#e8ddff",
+            "surface-container-low": "#f3f2ff",
+            "inverse-on-surface": "#eff0ff",
+            "primary-fixed": "#ffdad4",
+            "on-primary-container": "#6e0400",
+            "secondary": "#006a62",
+            "tertiary-container": "#a78bfa",
+            "tertiary-fixed-dim": "#cebdff",
+            "inverse-primary": "#ffb4a7",
+            "on-surface-variant": "#58413d",
+            "on-error-container": "#93000a",
+            "surface-container-highest": "#dee1f8",
+            "on-background": "#171b2b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "1rem",
+            "gutter-mobile": "0.75rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2rem",
+            "space-md": "1rem",
+            "margin": "1.25rem",
+            "space-lg": "1.5rem",
+            "margin-mobile": "1rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "headline-lg": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "label-lg": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "label-md": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "body-sm": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "headline-md": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "body-md": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "display-lg-mobile": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "label-sm": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "headline-sm": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "display-lg": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"],
+            "body-lg": ["Plus Jakarta Sans", "Noto Sans KR", "sans-serif"]
+          },
+          "fontSize": {
+            "headline-lg": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "label-lg": ["14px", { "lineHeight": "18px", "fontWeight": "600" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "body-sm": ["13px", { "lineHeight": "19px", "fontWeight": "400" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "21px", "fontWeight": "400" }],
+            "display-lg-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
+            "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+  /* 스크롤 기능은 100% 유지하면서 브라우저 스크롤바 UI만 투명하게 숨김 */
+  html, body {
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
+    /* 전체보기 모달 슬림 스크롤바 디자인 */
+    .modal-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .modal-scroll::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .modal-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .modal-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    body {
+      background-color: #FDFBF7;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+    .shadow-warm-card {
+      box-shadow: 0px 4px 20px rgba(45, 49, 66, 0.04);
+    }
+    .shadow-warm-float {
+      box-shadow: 0px 8px 24px rgba(255, 111, 89, 0.16);
+    }
+    .shadow-nav {
+      box-shadow: 0px -4px 24px rgba(45, 49, 66, 0.06);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#FDFBF7] text-on-surface flex justify-center min-h-screen">
+<!-- Mobile Viewport Container (~390px) -->
+<main class="w-full max-w-[420px] bg-[#FDFBF7] min-h-screen flex flex-col relative pb-28">
+<!-- Section 1: Top Bar (Header) -->
+<header class="sticky top-0 z-40 bg-[#FDFBF7]/95 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-outline-variant/10">
+<div class="flex items-center gap-2">
+<button onclick="location.href='01_dashboard.html'" aria-label="뒤로가기" class="w-9 h-9 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-warm-card active:scale-95 transition-transform cursor-pointer">
+<span class="material-symbols-outlined text-on-surface text-[20px]">chevron_left</span>
+</button>
+<div class="flex flex-col">
+<h1 class="text-base font-extrabold text-on-surface tracking-tight">마이페이지</h1>
+</div>
+</div>
+</header>
+
+<!-- Empty Body Content -->
+<!-- Main Content: Compact Pet Profile Card -->
+<div class="px-3.5 pt-3 flex flex-col gap-3">
+  
+  <!-- 등록된 반려동물 프로필 카드 (여백 작게, 적당한 크기) -->
+  <section class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col gap-3">
+    
+    <!-- Top Row: 아바타 + 기본 정보 + 수정 버튼 -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- 아바타 이미지 -->
+        <div class="relative w-14 h-14 rounded-full ring-2 ring-primary/20 p-0.5 flex-shrink-0">
+          <img id="mypage-pet-img" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ" alt="반려동물 사진"/>
+          <span class="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[8px] font-bold px-1.5 py-0.2 rounded-full shadow-sm">등록</span>
+        </div>
+
+        <!-- 이름 및 핵심 태그 -->
+        <div class="flex flex-col gap-0.5">
+          <div class="flex items-center gap-1.5">
+            <span id="mypage-name" class="text-lg font-extrabold text-slate-800">뽀삐</span>
+            <span id="mypage-gender" class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">여아 ♀</span>
+            <span id="mypage-neutered" class="bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold px-1.5 py-0.5 rounded-md">중성화 완료</span>
+          </div>
+          <span id="mypage-breed" class="text-xs font-semibold text-slate-500">말티즈 (강아지)</span>
+        </div>
+      </div>
+
+      <!-- 수정 버튼 -->
+      <button onclick="openMypageModal()" class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-600 text-xs font-bold transition-all flex items-center gap-0.5 cursor-pointer">
+        <span>수정</span>
+        <span class="material-symbols-outlined text-[14px]">edit</span>
+      </button>
+    </div>
+
+    <!-- 4대 상세 스펙 그리드 (나이, 체중, 종류, 등록상태) -->
+    <div class="grid grid-cols-3 gap-2 bg-[#FAF9F5] p-2.5 rounded-xl border border-slate-100 text-center">
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-slate-400">나이</span>
+        <span id="mypage-age" class="text-xs font-black text-slate-800 mt-0.5">3살 2개월</span>
+      </div>
+      <div class="flex flex-col border-x border-slate-200/60">
+        <span class="text-[10px] font-bold text-slate-400">몸무게</span>
+        <span id="mypage-weight" class="text-xs font-black text-slate-800 mt-0.5">3.4 kg</span>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-[10px] font-bold text-slate-400">품종 구분</span>
+        <span id="mypage-type" class="text-xs font-black text-slate-800 mt-0.5">소형견</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- 1. 예방접종 현황 카드 (최근 실제 접종 완료 3건) -->
+  <section class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 flex flex-col gap-2.5">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs font-extrabold text-slate-800">💉 예방접종 현황</span>
+        <button onclick="openVaccineGuideModal()" class="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200/80 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 hover:bg-blue-100 transition-colors cursor-pointer">
+          <span>접종가이드</span>
+          <span class="material-symbols-outlined text-[11px]">help</span>
+        </button>
+      </div>
+      <button onclick="openVaccineHistoryModal()" class="text-[11px] font-bold text-slate-500 hover:text-slate-800 flex items-center cursor-pointer">
+        <span>전체보기</span>
+        <span class="material-symbols-outlined text-[13px]">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- 실제 접종 완료 내역 3건 컴팩트 나열 (예정 제외) -->
+    <div class="flex flex-col gap-1.5">
+      <!-- 1건 -->
+      <div class="flex items-center justify-between p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span id="mypage-latest-vaccine" class="font-extrabold text-slate-800">광견병 백신 접종</span>
+        </div>
+        <span class="text-[11px] font-bold text-slate-400">2026.09.15</span>
+      </div>
+
+      <!-- 2건 -->
+      <div class="flex items-center justify-between p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+          <span class="font-extrabold text-slate-800">심장사상충 예방약 급여</span>
+        </div>
+        <span class="text-[11px] font-bold text-slate-400">2026.10.05</span>
+      </div>
+
+      <!-- 3건 -->
+      <div class="flex items-center justify-between p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span class="font-extrabold text-slate-800">켄넬코프 (기관지염) 접종</span>
+        </div>
+        <span class="text-[11px] font-bold text-slate-400">2026.05.20</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 데일리 건강 문진 작성 히스토리 카드 (최근 5건, 어제/오늘 수식어 제거) -->
+  <section class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 flex flex-col gap-2.5">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+      <div class="flex items-center gap-1.5">
+        <span class="text-xs font-extrabold text-slate-800">📝 건강 문진 히스토리</span>
+        <span class="text-[10px] text-slate-400 font-medium">최근 4회</span>
+      </div>
+      <button onclick="openIntakeHistoryModal()" class="text-[11px] font-bold text-slate-500 hover:text-slate-800 flex items-center cursor-pointer">
+        <span>전체보기</span>
+        <span class="material-symbols-outlined text-[13px]">chevron_right</span>
+      </button>
+    </div>
+
+    <!-- 최근 문진 4줄 컴팩트 나열 -->
+    <div class="flex flex-col gap-1.5">
+      <!-- 1행 (2026.10.21 - 오늘 실시간 연동) -->
+      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-slate-800">2026년 10월 21일</span>
+          <span id="mypage-intake-badge" class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700">최상</span>
+        </div>
+        <span id="mypage-intake-desc" class="text-[11px] text-slate-500 font-medium">식욕 완밥 · 음수 적당함 · 황금변 · 산책 30분</span>
+      </div>
+
+      <!-- 2행 (2026.10.20) -->
+      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-slate-800">2026년 10월 20일</span>
+          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700">양호</span>
+        </div>
+        <span class="text-[11px] text-slate-500 font-medium">식욕 완밥 · 음수 적당함 · 정상변 · 산책 20분</span>
+      </div>
+
+      <!-- 3행 (2026.10.19) -->
+      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-slate-800">2026년 10월 19일</span>
+          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">주의</span>
+        </div>
+        <span class="text-[11px] text-slate-500 font-medium">식욕 보통 · 음수 적음 · 묽은변 · 산책 0분</span>
+      </div>
+
+      <!-- 4행 (2026.10.18) -->
+      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-slate-800">2026년 10월 18일</span>
+          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700">최상</span>
+        </div>
+        <span class="text-[11px] text-slate-500 font-medium">식욕 완밥 · 음수 적당함 · 황금변 · 산책 40분</span>
+      </div>
+
+
+    </div>
+  </section>
+
+</div>
+
+
+<!-- 모달 1: 필수 예방접종 상식 가이드 모달 -->
+<div id="modal-vaccine-guide" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-[390px] max-h-[85vh] rounded-3xl p-5 shadow-2xl flex flex-col gap-3.5 border border-slate-100 overflow-hidden">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 flex-shrink-0">
+      <div class="flex flex-col">
+        <h3 class="text-base font-extrabold text-slate-800">반려동물 필수 예방접종 가이드</h3>
+        <p class="text-[11px] text-slate-400">아이의 건강을 위해 꼭 챙겨야 할 접종 상식</p>
+      </div>
+      <button onclick="closeVaccineGuideModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <!-- 가이드 내용 스크롤 -->
+    <div class="flex flex-col gap-2.5 overflow-y-auto pr-1 text-xs">
+      
+      <!-- DHPPL -->
+      <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-blue-900">1. DHPPL (종합백신 5종)</span>
+          <span class="text-[10px] font-bold text-blue-600 bg-white px-2 py-0.5 rounded-full shadow-xs">매년 1회 추가</span>
+        </div>
+        <p class="text-[11px] text-blue-800/80 leading-relaxed">
+          홍역(D), 간염(H), 파보(P), 파라인플루엔자(P), 렙토스피라(L)를 예방하는 가장 기초적이고 필수적인 핵심 백신입니다.
+        </p>
+      </div>
+
+      <!-- 코로나 -->
+      <div class="p-3 bg-amber-50/70 border border-amber-100 rounded-xl flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-amber-900">2. 코로나 장염 백신</span>
+          <span class="text-[10px] font-bold text-amber-700 bg-white px-2 py-0.5 rounded-full shadow-xs">매년 1회 추가</span>
+        </div>
+        <p class="text-[11px] text-amber-800/80 leading-relaxed">
+          치명적인 혈변, 구토, 탈수를 유발하는 장염 바이러스를 예방합니다. 특히 유년기 및 산책 시 필수입니다.
+        </p>
+      </div>
+
+      <!-- 켄넬코프 -->
+      <div class="p-3 bg-emerald-50/70 border border-emerald-100 rounded-xl flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-emerald-900">3. 켄넬코프 (전염성 기관지염)</span>
+          <span class="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-full shadow-xs">연 1~2회 권장</span>
+        </div>
+        <p class="text-[11px] text-emerald-800/80 leading-relaxed">
+          애견카페, 호텔, 미용실 등 밀집 공간에서 공기로 쉽게 전파되는 호흡기 질환(기침, 쌕쌕거림)을 예방합니다.
+        </p>
+      </div>
+
+      <!-- 광견병 -->
+      <div class="p-3 bg-rose-50/70 border border-rose-100 rounded-xl flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-rose-900">4. 광견병 백신</span>
+          <span class="text-[10px] font-bold text-rose-700 bg-white px-2 py-0.5 rounded-full shadow-xs">법정 의무 (연 1회)</span>
+        </div>
+        <p class="text-[11px] text-rose-800/80 leading-relaxed">
+          생후 3개월 이상 반려동물은 법적으로 매년 1회 의무 접종해야 합니다. (봄/가을 지자체 지원 사업 활용 가능)
+        </p>
+      </div>
+
+      <!-- 심장사상충 -->
+      <div class="p-3 bg-purple-50/70 border border-purple-100 rounded-xl flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-purple-900">5. 심장사상충 & 내외부 구충</span>
+          <span class="text-[10px] font-bold text-purple-700 bg-white px-2 py-0.5 rounded-full shadow-xs">매월 1회 정기</span>
+        </div>
+        <p class="text-[11px] text-purple-800/80 leading-relaxed">
+          모기를 매개로 감염되어 심장 혈관에 기생하는 치명적 기생충으로, 매달 1회 예방약 복용이나 바르는 약 투약이 권장됩니다.
+        </p>
+      </div>
+
+    </div>
+
+    <button onclick="closeVaccineGuideModal()" class="w-full py-2.5 rounded-xl bg-slate-800 text-white font-bold text-xs active:scale-95 transition-all">
+      확인 완료
+    </button>
+  </div>
+</div>
+
+<!-- 모달 2: 예방접종 전체 히스토리 목록 모달 (상단 고정 헤더 + 72vh 고정 스크롤) -->
+<div id="modal-vaccine-history" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-[390px] h-[72vh] max-h-[600px] rounded-3xl p-5 shadow-2xl flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    
+    <!-- 상단 고정 헤더 -->
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3 flex-shrink-0">
+      <div class="flex flex-col">
+        <h3 class="text-base font-extrabold text-slate-800">전체 예방접종 기록</h3>
+        <span class="text-[11px] text-slate-400">누적 접종 이력 관리</span>
+      </div>
+      <button onclick="closeVaccineHistoryModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <!-- 내부 독립 부드러운 스크롤 영역 -->
+    <div class="flex-1 overflow-y-auto modal-scroll pr-1.5 py-3 flex flex-col gap-2">
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs font-black text-slate-800">광견병 정기 예방접종</span>
+          <span class="text-[10px] text-slate-400 mt-0.5">2026년 9월 15일 · 행복한동물병원</span>
+        </div>
+        <span class="text-[10px] font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md">접종완료</span>
+      </div>
+
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs font-black text-slate-800">심장사상충 예방약 급여</span>
+          <span class="text-[10px] text-slate-400 mt-0.5">2026년 10월 5일 · 넥스가드 스펙트라</span>
+        </div>
+        <span class="text-[10px] font-extrabold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md">복용완료</span>
+      </div>
+
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs font-black text-slate-800">켄넬코프 (기관지염)</span>
+          <span class="text-[10px] text-slate-400 mt-0.5">2026년 5월 20일 · 안심동물의료센터</span>
+        </div>
+        <span class="text-[10px] font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md">접종완료</span>
+      </div>
+
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs font-black text-slate-800">DHPPL 종합백신 4차</span>
+          <span class="text-[10px] text-slate-400 mt-0.5">2025년 11월 10일 · 정기 추가접종</span>
+        </div>
+        <span class="text-[10px] font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md">접종완료</span>
+      </div>
+
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs font-black text-slate-800">코로나 장염 백신</span>
+          <span class="text-[10px] text-slate-400 mt-0.5">2025년 11월 10일 · 정기 추가접종</span>
+        </div>
+        <span class="text-[10px] font-extrabold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md">접종완료</span>
+      </div>
+
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs font-black text-slate-800">심장사상충 예방약 급여</span>
+          <span class="text-[10px] text-slate-400 mt-0.5">2025년 9월 5일 · 하트가드 플러스</span>
+        </div>
+        <span class="text-[10px] font-extrabold px-2 py-0.5 bg-blue-100 text-blue-700 rounded-md">복용완료</span>
+      </div>
+    </div>
+
+    <!-- 하단 고정 닫기 버튼 -->
+    <div class="pt-2 border-t border-slate-100 flex-shrink-0">
+      <button onclick="closeVaccineHistoryModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs active:scale-95 transition-all cursor-pointer">
+        닫기
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 모달 3: 데일리 문진 히스토리 전체 목록 모달 (상단 고정 헤더 + 72vh 고정 스크롤) -->
+<div id="modal-intake-history" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-[390px] h-[72vh] max-h-[600px] rounded-3xl p-5 shadow-2xl flex flex-col border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    
+    <!-- 상단 고정 헤더 -->
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3 flex-shrink-0">
+      <div class="flex flex-col">
+        <h3 class="text-base font-extrabold text-slate-800">전체 건강 문진 기록</h3>
+        <span class="text-[11px] text-slate-400">일자별 데일리 케어 일지</span>
+      </div>
+      <button onclick="closeIntakeHistoryModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <!-- 내부 독립 부드러운 스크롤 영역 -->
+    <div id="intake-history-list" class="flex-1 overflow-y-auto modal-scroll pr-1.5 py-3 flex flex-col gap-2 text-xs">
+      
+      <!-- 10.21 -->
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 21일</span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (96점)</span>
+        </div>
+        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 30분 이상</span>
+      </div>
+
+      <!-- 10.20 -->
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 20일</span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded">양호 (85점)</span>
+        </div>
+        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 보통 · 산책: 10~20분</span>
+      </div>
+
+      <!-- 10.19 -->
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 19일</span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded">주의 (65점)</span>
+        </div>
+        <span class="text-[11px] text-slate-500">식욕: 조금남김 · 음수: 적음 · 대변: 묽은변 · 산책: 0분</span>
+      </div>
+
+      <!-- 10.18 -->
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 18일</span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (95점)</span>
+        </div>
+        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 40분</span>
+      </div>
+
+      <!-- 10.17 -->
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 17일</span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded">양호 (80점)</span>
+        </div>
+        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 보통 · 산책: 25분</span>
+      </div>
+
+      <!-- 10.16 -->
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 16일</span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (92점)</span>
+        </div>
+        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 35분</span>
+      </div>
+
+      <!-- 10.15 -->
+      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 15일</span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (90점)</span>
+        </div>
+        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 30분</span>
+      </div>
+
+    </div>
+
+    <!-- 하단 고정 닫기 버튼 -->
+    <div class="pt-2 border-t border-slate-100 flex-shrink-0">
+      <button onclick="closeIntakeHistoryModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs active:scale-95 transition-all cursor-pointer">
+        닫기
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 마이페이지 프로필 수정 모달 팝업 -->
+<div id="modal-mypage-edit" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-[380px] rounded-3xl p-5 shadow-2xl flex flex-col gap-4 border border-slate-100">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="text-base font-extrabold text-slate-800">반려동물 정보 수정</h3>
+      <button onclick="closeMypageModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <form onsubmit="saveMypageProfile(event)" class="flex flex-col gap-3">
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-bold text-slate-700">이름</label>
+        <input type="text" id="edit-name" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"/>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-slate-700">종류</label>
+          <select id="edit-type" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+            <option value="강아지">강아지 🐶</option>
+            <option value="고양이">고양이 🐱</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-slate-700">품종</label>
+          <input type="text" id="edit-breed" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"/>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-slate-700">성별</label>
+          <select id="edit-gender" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+            <option value="여아 ♀">여아 ♀</option>
+            <option value="남아 ♂">남아 ♂</option>
+          </select>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-slate-700">중성화</label>
+          <select id="edit-neutered" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium">
+            <option value="완료">완료</option>
+            <option value="미완료">미완료</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-slate-700">나이</label>
+          <input type="text" id="edit-age" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"/>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold text-slate-700">몸무게</label>
+          <input type="text" id="edit-weight" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"/>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full mt-2 py-3 rounded-2xl bg-primary text-white font-extrabold text-sm shadow-md active:scale-[0.98] transition-all cursor-pointer">
+        저장 완료
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Standard Unified 4-Tab Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 h-[62px] flex justify-around items-center px-3 py-1.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl max-w-[430px] mx-auto right-0">
+  <!-- Tab: 홈 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="01_dashboard.html">
+    <span class="material-symbols-outlined text-[20px]">home</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">홈</span>
+  </a>
+  <!-- Tab: 건강체크 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="02_camera_scan.html">
+    <span class="material-symbols-outlined text-[20px]">vital_signs</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">건강체크</span>
+  </a>
+  <!-- Tab: 건강상태 -->
+  <a class="flex flex-col items-center justify-center text-slate-500 hover:text-slate-800 px-3 py-1 active:scale-95 transition-transform cursor-pointer" href="03_scan_report.html">
+    <span class="material-symbols-outlined text-[20px]">monitoring</span>
+    <span class="text-[10px] font-semibold mt-0.5 leading-none">건강상태</span>
+  </a>
+  <!-- Tab: 마이 (Active) -->
+  <a class="flex flex-col items-center justify-center bg-[#FFDAD4] text-[#AC3323] rounded-full px-4 py-1 active:scale-95 transition-transform" href="04_health_diary_charts.html">
+    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">person</span>
+    <span class="text-[10px] font-extrabold mt-0.5 leading-none">마이</span>
+  </a>
+</nav>
+<!-- iOS Home Bar Indicator -->
+<div class="fixed bottom-1 left-1/2 -translate-x-1/2 w-28 h-1 bg-slate-300 rounded-full z-50 pointer-events-none"></div>
+</main>
+
+<script>
+  function loadMypageProfile() {
+    const saved = localStorage.getItem('pet_profile_data');
+    if (saved) {
+      try {
+        const p = JSON.parse(saved);
+        if (p.name) document.getElementById('mypage-name').innerText = p.name;
+        if (p.gender) document.getElementById('mypage-gender').innerText = p.gender;
+        if (p.neutered) document.getElementById('mypage-neutered').innerText = '중성화 ' + p.neutered;
+        if (p.breed) document.getElementById('mypage-breed').innerText = `${p.breed} (${p.type || '강아지'})`;
+        if (p.age) document.getElementById('mypage-age').innerText = p.age;
+        if (p.weight) document.getElementById('mypage-weight').innerText = p.weight;
+      } catch(e) {}
+    }
+  }
+
+  function openMypageModal() {
+    const modal = document.getElementById('modal-mypage-edit');
+    if (!modal) return;
+    
+    // 기존 데이터 채우기
+    const saved = localStorage.getItem('pet_profile_data');
+    if (saved) {
+      try {
+        const p = JSON.parse(saved);
+        document.getElementById('edit-name').value = p.name || '';
+        document.getElementById('edit-type').value = p.type || '강아지';
+        document.getElementById('edit-breed').value = p.breed || '';
+        document.getElementById('edit-gender').value = p.gender || '여아 ♀';
+        document.getElementById('edit-neutered').value = p.neutered || '완료';
+        document.getElementById('edit-age').value = p.age || '';
+        document.getElementById('edit-weight').value = p.weight || '';
+      } catch(e) {}
+    } else {
+      document.getElementById('edit-name').value = '뽀삐';
+      document.getElementById('edit-type').value = '강아지';
+      document.getElementById('edit-breed').value = '말티즈';
+      document.getElementById('edit-gender').value = '여아 ♀';
+      document.getElementById('edit-neutered').value = '완료';
+      document.getElementById('edit-age').value = '3살 2개월';
+      document.getElementById('edit-weight').value = '3.4kg';
+    }
+    modal.classList.remove('hidden');
+  }
+
+  function closeMypageModal() {
+    const modal = document.getElementById('modal-mypage-edit');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function saveMypageProfile(e) {
+    e.preventDefault();
+    const profileData = {
+      name: document.getElementById('edit-name').value.trim(),
+      type: document.getElementById('edit-type').value,
+      breed: document.getElementById('edit-breed').value.trim(),
+      gender: document.getElementById('edit-gender').value,
+      neutered: document.getElementById('edit-neutered').value,
+      age: document.getElementById('edit-age').value.trim(),
+      weight: document.getElementById('edit-weight').value.trim()
+    };
+
+    localStorage.setItem('pet_profile_data', JSON.stringify(profileData));
+    loadMypageProfile();
+    closeMypageModal();
+  }
+
+  window.addEventListener('DOMContentLoaded', loadMypageProfile);
+
+  // 예방접종 가이드 모달
+  function openVaccineGuideModal() {
+    document.getElementById('modal-vaccine-guide').classList.remove('hidden');
+  }
+  function closeVaccineGuideModal() {
+    document.getElementById('modal-vaccine-guide').classList.add('hidden');
+  }
+
+  // 예방접종 전체보기 모달
+  function openVaccineHistoryModal() {
+    document.getElementById('modal-vaccine-history').classList.remove('hidden');
+  }
+  function closeVaccineHistoryModal() {
+    document.getElementById('modal-vaccine-history').classList.add('hidden');
+  }
+
+  // 문진 히스토리 전체보기 모달
+  function openIntakeHistoryModal() {
+    document.getElementById('modal-intake-history').classList.remove('hidden');
+  }
+  function closeIntakeHistoryModal() {
+    document.getElementById('modal-intake-history').classList.add('hidden');
+  }
+
+  // 오늘 체크한 문진 데이터 마이페이지에 연동
+  function loadTodayIntakeToMypage() {
+    const today = new Date().toLocaleDateString('ko-KR');
+    const saved = localStorage.getItem('pet_daily_intake_' + today);
+    if (saved) {
+      try {
+        const d = JSON.parse(saved);
+        const descEl = document.getElementById('mypage-intake-desc');
+        const badgeEl = document.getElementById('mypage-intake-badge');
+        const vaccineEl = document.getElementById('mypage-latest-vaccine');
+        
+        if (descEl) {
+          descEl.innerText = `식욕 ${d.appetite || '완밥'} · 음수 ${d.water || '적당함'} · 대변 ${d.stool || '황금변'} · 산책 ${d.walk || '30분이상'}`;
+        }
+        if (d.vaccine && vaccineEl) {
+          vaccineEl.innerText = `${d.vaccine} (오늘 투약/접종 기록)`;
+        }
+      } catch(e) {}
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', loadTodayIntakeToMypage);
+</script>
+
+</body></html>
