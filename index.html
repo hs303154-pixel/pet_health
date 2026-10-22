@@ -2,41 +2,121 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>반려동물 AI 웰니스 케어 - 프로토타입 뷰어</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>루이의 건강 - 반려동물 AI 웰니스</title>
+    <!-- PWA & Mobile Standalone Meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FF6F59">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="루이의건강">
+    <link rel="apple-touch-icon" href="https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ">
+    
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <style>
-  /* 스크롤 기능은 100% 유지하면서 브라우저 스크롤바 UI만 투명하게 숨김 */
-  html, body {
-    -ms-overflow-style: none; /* IE, Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-  html::-webkit-scrollbar, body::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
-        body { background: #f0ede6; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 24px 16px; color: #2D3142; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { font-size: 24px; color: #ac3323; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .header p { font-size: 14px; color: #71778E; }
-        .nav-tabs { width: 410px; max-width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; background: #fff; padding: 6px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); margin-bottom: 16px; }
-        
-        
-        .phone-wrapper { width: 410px; max-width: 100%; height: 860px; background: #fff; border-radius: 44px; box-shadow: 0 25px 60px rgba(0,0,0,0.15), 0 0 0 10px #2D3142; overflow: hidden; position: relative; display: flex; flex-direction: column; }
-        .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 140px; height: 26px; background: #2D3142; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 100; }
-        iframe { width: 100%; height: 100%; border: none; flex: 1; }
+      html, body {
+        margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+        background-color: #FDFBF7;
+        -webkit-tap-highlight-color: transparent;
+      }
+      iframe {
+        width: 100%; height: 100%; border: none; display: block;
+      }
+      /* PWA / APK 원클릭 설치 안내 플로팅 배너 */
+      #install-banner {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 380px;
+        background: rgba(30, 41, 59, 0.95);
+        backdrop-filter: blur(8px);
+        color: white;
+        border-radius: 20px;
+        padding: 14px 16px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 99999;
+        font-family: 'Pretendard', sans-serif;
+        animation: slideUp 0.4s ease-out;
+      }
+      @keyframes slideUp {
+        from { transform: translate(-50%, 40px); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+      }
     </style>
 </head>
 <body>
 
-    <div class="phone-wrapper">
-        <div class="phone-notch"></div>
-        <iframe id="app-frame" src="01_dashboard.html"></iframe>
+    <iframe id="app-frame" src="01_dashboard.html"></iframe>
+
+    <!-- 원클릭 앱 설치 및 APK 직접 다운로드 배너 -->
+    <div id="install-banner">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ" style="width: 36px; height: 36px; border-radius: 10px; object-fit: cover;">
+          <div>
+            <div style="font-size: 13px; font-weight: 800; color: #FFF;">루이의 건강 앱 테스터 전용</div>
+            <div style="font-size: 11px; color: #94A3B8;">홈 화면에 설치하여 전체화면 앱으로 체험</div>
+          </div>
+        </div>
+        <button onclick="document.getElementById('install-banner').style.display='none'" style="background: none; border: none; color: #94A3B8; font-size: 18px; cursor: pointer; padding: 4px;">✕</button>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button id="btn-pwa-install" onclick="triggerPWAInstall()" style="flex: 1; background: #FF6F59; color: white; border: none; padding: 10px 0; border-radius: 12px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          📲 내 폰에 앱 설치하기
+        </button>
+        <a href="pet_app.apk" download style="background: #334155; color: #F1F5F9; text-decoration: none; padding: 10px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px;">
+          📥 APK 다운
+        </a>
+      </div>
     </div>
 
-        <script>
-        // 하단 앱 네비게이션으로 모든 화면이 매끄럽게 연결됩니다.
+    <script>
+      // 서비스 워커 등록
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
+      }
+
+      // PWA 원클릭 설치 이벤트 감지
+      let deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const banner = document.getElementById('install-banner');
+        if (banner) banner.style.display = 'flex';
+      });
+
+      function triggerPWAInstall() {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              document.getElementById('install-banner').style.display = 'none';
+            }
+            deferredPrompt = null;
+          });
+        } else {
+          // iOS 사파리 또는 브라우저 기본 설치 안내 팝업
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          if (isIOS) {
+            alert("하단의 [공유 아이콘(네모에 화살표)]을 누르신 뒤\n[홈 화면에 추가]를 선택하시면 즉시 앱으로 설치됩니다!");
+          } else {
+            alert("브라우저 상단/하단 메뉴(점 세개)에서\n[앱 설치] 또는 [홈 화면에 추가]를 누르시면 진짜 앱으로 설치됩니다!");
+          }
+        }
+      }
+
+      // 이미 전체화면(PWA)으로 실행 중이면 설치 배너 숨김
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        const banner = document.getElementById('install-banner');
+        if (banner) banner.style.display = 'none';
+      }
     </script>
 </body>
 </html>

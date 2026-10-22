@@ -1,0 +1,23 @@
+{
+  "name": "루이의 건강 - 반려동물 AI 웰니스",
+  "short_name": "루이의건강",
+  "start_url": "./01_dashboard.html",
+  "display": "standalone",
+  "background_color": "#FDFBF7",
+  "theme_color": "#FF6F59",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
