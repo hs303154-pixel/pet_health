@@ -458,6 +458,20 @@
     <!-- Form Body -->
     <form id="form-pet-profile" onsubmit="savePetProfile(event)" class="flex flex-col gap-3">
       
+      <!-- 0. 프로필 사진 등록/변경 -->
+      <div class="flex flex-col items-center justify-center pt-1 pb-1">
+        <div class="relative group cursor-pointer" onclick="document.getElementById('prof-photo-input').click()">
+          <div id="prof-photo-preview" class="w-20 h-20 rounded-full ring-4 ring-primary/20 bg-slate-100 flex items-center justify-center overflow-hidden shadow-inner text-slate-400">
+            <span class="material-symbols-outlined text-[36px]">pets</span>
+          </div>
+          <div class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-md border-2 border-white">
+            <span class="material-symbols-outlined text-[15px]">photo_camera</span>
+          </div>
+        </div>
+        <input type="file" id="prof-photo-input" accept="image/*" class="hidden" onchange="handleProfilePhotoSelect(event)" />
+        <span class="text-[11px] font-bold text-primary mt-1.5 cursor-pointer hover:underline" onclick="document.getElementById('prof-photo-input').click()">+ 사진 등록 / 변경</span>
+      </div>
+      
       <!-- 1. 이름 -->
       <div class="flex flex-col gap-1">
         <label class="text-xs font-bold text-slate-700">반려동물 이름 <span class="text-rose-500">*</span></label>
@@ -605,6 +619,47 @@
 
 
   // 반려동물 프로필 온보딩 & 정보수정 관리 시스템
+    let currentPhotoData = null;
+
+  function handleProfilePhotoSelect(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const maxDim = 320;
+        let w = img.width;
+        let h = img.height;
+        if (w > h) {
+          if (w > maxDim) {
+            h = Math.round(h * maxDim / w);
+            w = maxDim;
+          }
+        } else {
+          if (h > maxDim) {
+            w = Math.round(w * maxDim / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        currentPhotoData = canvas.toDataURL('image/jpeg', 0.85);
+
+        const prev = document.getElementById('prof-photo-preview');
+        if (prev) {
+          prev.innerHTML = `<img src="${currentPhotoData}" class="w-full h-full object-cover" />`;
+        }
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   let currentGender = '여아 ♀';
   let currentNeutered = '완료';
 
@@ -643,6 +698,9 @@
 
     if (isFirstTime) {
       title.innerText = '우리 아이 첫 프로필 등록';
+      currentPhotoData = null;
+      const prevEl = document.getElementById('prof-photo-preview');
+      if (prevEl) prevEl.innerHTML = '<span class="material-symbols-outlined text-[36px]">pets</span>';
       submitBtn.innerText = '등록 완료하고 시작하기';
       if (closeBtn) closeBtn.classList.remove('hidden'); // 편안한 테스트를 위해 항상 X 닫기 버튼 노출
     } else {
@@ -660,6 +718,15 @@
           document.getElementById('prof-breed').value = p.breed || '';
           document.getElementById('prof-age').value = p.age || '';
           document.getElementById('prof-weight').value = p.weight || '';
+          currentPhotoData = p.photo || null;
+          const prev = document.getElementById('prof-photo-preview');
+          if (prev) {
+            if (currentPhotoData) {
+              prev.innerHTML = `<img src="${currentPhotoData}" class="w-full h-full object-cover" />`;
+            } else {
+              prev.innerHTML = '<span class="material-symbols-outlined text-[36px]">pets</span>';
+            }
+          }
           setGender(p.gender || '여아 ♀');
           setNeutered(p.neutered || '완료');
         } catch(e) {}
@@ -688,7 +755,8 @@
       gender: currentGender,
       neutered: currentNeutered,
       age,
-      weight
+      weight,
+      photo: currentPhotoData || null
     };
 
     localStorage.setItem('pet_profile_data', JSON.stringify(profileData));
@@ -736,8 +804,9 @@
       greetEl.innerText = `${p.name}야, 오늘도 건강하게 신나게 놀자! 🌟`;
     }
     if (avatarEl) {
+      const photoSrc = p.photo || "https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ";
       avatarEl.innerHTML = `
-        <img class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ"/>
+        <img class="w-full h-full object-cover rounded-full" src="${photoSrc}"/>
         <span class="absolute -top-1 -right-1 bg-primary text-on-primary text-[9px] font-bold px-1.5 py-0.2 rounded-full shadow-sm">건강인증</span>
       `;
       avatarEl.className = 'relative w-12 h-12 rounded-full ring-2 ring-primary-container p-0.5';

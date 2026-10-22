@@ -2,6 +2,73 @@
 
 <html lang="ko"><head>
 <script>
+  let editPhotoData = null;
+
+  function handleMypagePhotoSelect(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const maxDim = 320;
+        let w = img.width;
+        let h = img.height;
+        if (w > h) {
+          if (w > maxDim) {
+            h = Math.round(h * maxDim / w);
+            w = maxDim;
+          }
+        } else {
+          if (h > maxDim) {
+            w = Math.round(w * maxDim / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        editPhotoData = canvas.toDataURL('image/jpeg', 0.85);
+
+        const prev = document.getElementById('edit-photo-preview');
+        if (prev) {
+          prev.innerHTML = `<img src="${editPhotoData}" class="w-full h-full object-cover" />`;
+        }
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveMypageProfile(e) {
+    e.preventDefault();
+    const name = document.getElementById('edit-name').value.trim();
+    const type = document.getElementById('edit-type').value;
+    const breed = document.getElementById('edit-breed').value.trim();
+    const gender = document.getElementById('edit-gender').value;
+    const neutered = document.getElementById('edit-neutered').value;
+    const age = document.getElementById('edit-age').value.trim();
+    const weight = document.getElementById('edit-weight').value.trim();
+
+    const profileData = {
+      name,
+      type,
+      breed,
+      gender,
+      neutered,
+      age,
+      weight,
+      photo: editPhotoData || null
+    };
+
+    localStorage.setItem('pet_profile_data', JSON.stringify(profileData));
+    loadMypageProfile();
+    closeMypageModal();
+  }
+
   // 이전 테스트 잔여 문진 데이터 전면 초기화 (클린 스타트)
   try {
     Object.keys(localStorage).forEach(k => {
@@ -552,6 +619,19 @@
     </div>
 
     <form onsubmit="saveMypageProfile(event)" class="flex flex-col gap-3">
+      <!-- 사진 등록 / 변경 -->
+      <div class="flex flex-col items-center justify-center pt-1 pb-1">
+        <div class="relative group cursor-pointer" onclick="document.getElementById('edit-photo-input').click()">
+          <div id="edit-photo-preview" class="w-20 h-20 rounded-full ring-4 ring-primary/20 bg-slate-100 flex items-center justify-center overflow-hidden shadow-inner text-slate-400">
+            <span class="material-symbols-outlined text-[36px]">pets</span>
+          </div>
+          <div class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-md border-2 border-white">
+            <span class="material-symbols-outlined text-[15px]">photo_camera</span>
+          </div>
+        </div>
+        <input type="file" id="edit-photo-input" accept="image/*" class="hidden" onchange="handleMypagePhotoSelect(event)" />
+        <span class="text-[11px] font-bold text-primary mt-1.5 cursor-pointer hover:underline" onclick="document.getElementById('edit-photo-input').click()">+ 사진 등록 / 변경</span>
+      </div>
       <div class="flex flex-col gap-1">
         <label class="text-xs font-bold text-slate-700">이름</label>
         <input type="text" id="edit-name" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"/>
@@ -642,6 +722,11 @@
         if (p.breed) document.getElementById('mypage-breed').innerText = `${p.breed} (${p.type || '강아지'})`;
         if (p.age) document.getElementById('mypage-age').innerText = p.age;
         if (p.weight) document.getElementById('mypage-weight').innerText = p.weight;
+        const avWrap = document.getElementById('mypage-avatar-wrap');
+        if (avWrap && p.photo) {
+          avWrap.innerHTML = `<img src="${p.photo}" class="w-full h-full object-cover rounded-full" />`;
+          avWrap.className = 'relative w-14 h-14 rounded-full ring-2 ring-primary p-0.5 flex-shrink-0';
+        }
       } catch(e) {}
     }
   }
@@ -662,6 +747,15 @@
         document.getElementById('edit-neutered').value = p.neutered || '완료';
         document.getElementById('edit-age').value = p.age || '';
         document.getElementById('edit-weight').value = p.weight || '';
+        editPhotoData = p.photo || null;
+        const prev = document.getElementById('edit-photo-preview');
+        if (prev) {
+          if (editPhotoData) {
+            prev.innerHTML = `<img src="${editPhotoData}" class="w-full h-full object-cover" />`;
+          } else {
+            prev.innerHTML = '<span class="material-symbols-outlined text-[36px]">pets</span>';
+          }
+        }
       } catch(e) {}
     } else {
       document.getElementById('edit-name').value = '';
