@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 
 <html lang="ko"><head>
+<script>
+  // 이전 테스트 잔여 문진 데이터 전면 초기화 (클린 스타트)
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('pet_daily_intake_') || k.startsWith('pet_daily_ai_advice_')) {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch(e) {}
+</script>
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>루이의 건강 - 반려견 헬스케어 대시보드</title>
@@ -15,33 +26,7 @@
   // 저장된 식단 불러오기
   window.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toLocaleDateString('ko-KR');
-    const savedIntake = localStorage.getItem('pet_daily_intake_' + today);
-    if (savedIntake) {
-      try {
-        const parsed = JSON.parse(savedIntake);
-        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
-          if (parsed[k]) {
-            intakeData[k] = parsed[k];
-            const lbl = document.getElementById('label-' + k);
-            if (lbl) {
-              lbl.innerText = parsed[k];
-              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
-            }
-            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
-              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
-                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
-              }
-            });
-          }
-        });
-        if (parsed.diet && document.getElementById('input-diet')) {
-          document.getElementById('input-diet').value = parsed.diet;
-        }
-        if (parsed.vaccine && document.getElementById('input-vaccine')) {
-          document.getElementById('input-vaccine').value = parsed.vaccine;
-        }
-      } catch(e) {}
-    }
+    // 시작 시에는 항상 깨끗하게 미선택 상태로 대기
 
     const savedProf = localStorage.getItem('pet_profile_data');
     if (!savedProf) {
@@ -163,33 +148,7 @@
   // 저장된 식단 불러오기
   window.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toLocaleDateString('ko-KR');
-    const savedIntake = localStorage.getItem('pet_daily_intake_' + today);
-    if (savedIntake) {
-      try {
-        const parsed = JSON.parse(savedIntake);
-        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
-          if (parsed[k]) {
-            intakeData[k] = parsed[k];
-            const lbl = document.getElementById('label-' + k);
-            if (lbl) {
-              lbl.innerText = parsed[k];
-              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
-            }
-            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
-              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
-                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
-              }
-            });
-          }
-        });
-        if (parsed.diet && document.getElementById('input-diet')) {
-          document.getElementById('input-diet').value = parsed.diet;
-        }
-        if (parsed.vaccine && document.getElementById('input-vaccine')) {
-          document.getElementById('input-vaccine').value = parsed.vaccine;
-        }
-      } catch(e) {}
-    }
+    // 시작 시에는 항상 깨끗하게 미선택 상태로 대기
 
     const savedProf = localStorage.getItem('pet_profile_data');
     if (!savedProf) {
@@ -255,65 +214,65 @@
 <!-- Mobile Viewport Container (~390px) -->
 <main class="min-h-screen bg-[#FDFBF7] flex flex-col relative pb-28 w-full max-w-[430px] mx-auto min-h-screen relative">
 <!-- Main Scrollable Dashboard Content -->
-<div class="px-3.5 flex flex-col gap-2.5 pt-1">
+<div class="px-3 flex flex-col gap-2 pt-0.5">
 <!-- 1. Pet Profile Card & Greeting -->
-<section class="bg-surface-container-lowest rounded-2xl p-4 soft-shadow-card flex flex-col gap-3 relative overflow-hidden border border-outline-variant/20">
+<section class="bg-surface-container-lowest rounded-2xl p-3 soft-shadow-card flex flex-col gap-2 relative overflow-hidden border border-outline-variant/20">
 <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-primary-fixed/20 blur-2xl pointer-events-none"></div>
 <!-- Greeting Toast/Pill -->
 <div class="flex items-center gap-1.5 bg-[#FFF8F5] px-3 py-1 rounded-full w-fit">
-<span id="pet-greeting-display" class="text-xs text-primary font-bold">뽀삐야, 오늘도 건강하게 신나게 놀자! 🌟</span>
+<span id="pet-greeting-display" class="text-xs text-primary font-bold">우리 아이 첫 건강 케어를 시작해보세요! 🐾</span>
 </div>
-<!-- Pet Info Row -->
-<div class="flex items-center justify-between">
+<!-- Pet Info Row (등록 전 클린 상태) -->
+<div class="flex items-center justify-between cursor-pointer" onclick="openProfileModal(false)">
 <div class="flex items-center gap-3">
-<div class="relative w-12 h-12 rounded-full ring-2 ring-primary-container p-0.5">
-<img class="w-full h-full object-cover rounded-full" data-alt="A bright charming portrait of an adorable Maltese small dog with fluffy white fur, soft cheerful smile, light cream interior studio setup, cozy warm ambiance, high definition digital pet photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ"/>
-<span class="absolute -top-1 -right-1 bg-primary text-on-primary text-[9px] font-bold px-1.5 py-0.2 rounded-full shadow-sm">건강인증</span>
+<div id="pet-avatar-wrapper" class="relative w-12 h-12 rounded-full ring-2 ring-slate-200 bg-slate-100 flex items-center justify-center text-slate-400 p-0.5">
+<span class="material-symbols-outlined text-[24px]">pets</span>
+<span id="pet-badge-tag" class="hidden absolute -top-1 -right-1 bg-primary text-on-primary text-[9px] font-bold px-1.5 py-0.2 rounded-full shadow-sm">건강인증</span>
 </div>
 <div>
 <div class="flex items-center gap-1.5">
-<span id="pet-name-display" class="text-xl text-on-surface font-extrabold">뽀삐</span>
-<span id="pet-gender-display" class="bg-surface-container-high text-on-surface-variant text-[11px] font-semibold px-2 py-0.5 rounded-full">여아 ♀</span>
+<span id="pet-name-display" class="text-base text-on-surface font-extrabold">반려동물을 등록해주세요</span>
+<span id="pet-gender-display" class="hidden bg-surface-container-high text-on-surface-variant text-[11px] font-semibold px-2 py-0.5 rounded-full">여아 ♀</span>
 </div>
-<p id="pet-sub-display" class="text-xs text-on-surface-variant font-medium">말티즈 · 3살 2개월 · 3.4kg</p>
+<p id="pet-sub-display" class="text-xs text-slate-400 font-medium">터치하여 아이 프로필(이름, 품종, 나이) 등록 ✏️</p>
 </div>
 </div>
-
+<span class="material-symbols-outlined text-slate-400 text-[20px]">chevron_right</span>
 </div>
-<!-- Wellness Score Gauge Card Inside Profile (실시간 동적 연동) -->
-<div class="bg-gradient-to-br from-[#FAFAF8] to-[#F5F2EB] p-3 rounded-xl flex items-center justify-between border border-[#EFECE3]">
+<!-- Wellness Score Gauge Card Inside Profile (문진표 작성 전에는 100% 숨김!) -->
+<div id="wellness-card-container" class="bg-gradient-to-br from-[#FAFAF8] to-[#F5F2EB] p-3 rounded-xl flex items-center justify-between border border-[#EFECE3] mt-2">
 <div class="flex flex-col gap-0.5 max-w-[270px]">
 <div class="flex items-center gap-2">
 <span class="text-xs text-on-surface-variant font-medium">오늘의 컨디션</span>
-<span id="wellness-badge" class="bg-[#E8F8F5] text-secondary text-[11px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-<span id="wellness-badge-dot" class="w-1.5 h-1.5 rounded-full bg-secondary"></span> <span id="wellness-badge-text">아주 건강해요</span>
+<span id="wellness-badge" class="hidden bg-slate-100 text-slate-500 text-[11px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+<span id="wellness-badge-dot" class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> <span id="wellness-badge-text">기록 완료</span>
 </span>
 </div>
 <div class="flex items-baseline gap-1 mt-0.5">
-<span id="wellness-score-number" class="text-2xl text-on-surface font-black">96</span>
+<span id="wellness-score-number" class="text-2xl text-on-surface font-black">0</span>
 <span class="text-xs text-on-surface-variant font-medium">/ 100점</span>
 </div>
-<!-- 매일 다채롭게 바뀌는 데일리 코칭 한 줄 문구 (수십 가지 룰 엔진 연동) -->
+<!-- 매일 다채롭게 바뀌는 데일리 코칭 한 줄 문구 -->
 <p id="wellness-message" class="text-[11px] text-primary font-semibold flex items-center gap-1 leading-snug break-keep">
 <span class="flex-shrink-0 text-[12px]">🐾</span>
-<span id="wellness-message-text">황금변에 완밥까지! 오늘 우리 아이 컨디션은 만점이에요 🌟</span>
+<span id="wellness-message-text">오늘 건강 체크를 완료하시면 맞춤형 AI 코칭이 열립니다! 🌟</span>
 </p>
 </div>
 <!-- Mini Circular Ring Graphic -->
 <div class="relative w-13 h-13 flex items-center justify-center flex-shrink-0">
 <svg class="w-12 h-12 -rotate-90" viewbox="0 0 36 36">
 <circle class="stroke-[#E3DFD5]" cx="18" cy="18" fill="none" r="15" stroke-width="3"></circle>
-<circle id="wellness-ring-circle" class="stroke-emerald-500 transition-all duration-700" cx="18" cy="18" fill="none" r="15" stroke-dasharray="94.2" stroke-dashoffset="3.8" stroke-linecap="round" stroke-width="3.5"></circle>
+<circle id="wellness-ring-circle" class="stroke-slate-300 transition-all duration-700" cx="18" cy="18" fill="none" r="15" stroke-dasharray="94.2" stroke-dashoffset="94.2" stroke-linecap="round" stroke-width="3.5"></circle>
 </svg>
 <div class="absolute inset-0 flex flex-col items-center justify-center">
-<span id="wellness-percent-number" class="text-xs font-bold text-on-surface">96%</span>
+<span id="wellness-percent-number" class="text-xs font-bold text-slate-400">0%</span>
 </div>
 </div>
 </div>
 </section>
 <!-- 2. Daily Pet Doctor Care Banner (코다리 부장 정밀 Q&A 교정 완료) -->
 <section class="relative">
-  <div class="w-full bg-[#FFF2EB] border border-[#FFBBA6] rounded-2xl p-3.5 shadow-xs flex flex-col gap-1.5 transition-all">
+  <div class="w-full bg-[#FFF2EB] border border-[#FFBBA6] rounded-2xl p-2.5 shadow-xs flex flex-col gap-1 transition-all">
     <!-- 상단 태그 라벨 -->
     <div class="flex items-center">
       <div class="flex items-center gap-1.5">
@@ -349,9 +308,9 @@
         <span id="label-appetite" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('appetite', '완밥', this)" class="intake-btn-appetite py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">완밥 싹 비움</button>
-        <button type="button" onclick="selectIntake('appetite', '조금남김', this)" class="intake-btn-appetite py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">조금 남김</button>
-        <button type="button" onclick="selectIntake('appetite', '안먹음', this)" class="intake-btn-appetite py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">안 먹음(거부)</button>
+        <button type="button" onclick="selectIntake('appetite', '완밥', this)" class="intake-btn-appetite py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">완밥 싹 비움</button>
+        <button type="button" onclick="selectIntake('appetite', '조금남김', this)" class="intake-btn-appetite py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">조금 남김</button>
+        <button type="button" onclick="selectIntake('appetite', '안먹음', this)" class="intake-btn-appetite py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">안 먹음(거부)</button>
       </div>
       <!-- 오늘 먹은 사료/간식 한 줄 텍스트 입력창 -->
       <div class="relative mt-0.5">
@@ -368,9 +327,9 @@
         <span id="label-water" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('water', '적당함', this)" class="intake-btn-water py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">평소대로</button>
-        <button type="button" onclick="selectIntake('water', '많이마심', this)" class="intake-btn-water py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">많이 마심</button>
-        <button type="button" onclick="selectIntake('water', '거의안마심', this)" class="intake-btn-water py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">거의 안 마심</button>
+        <button type="button" onclick="selectIntake('water', '적당함', this)" class="intake-btn-water py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">평소대로</button>
+        <button type="button" onclick="selectIntake('water', '많이마심', this)" class="intake-btn-water py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">많이 마심</button>
+        <button type="button" onclick="selectIntake('water', '거의안마심', this)" class="intake-btn-water py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">거의 안 마심</button>
       </div>
     </div>
 
@@ -383,9 +342,9 @@
         <span id="label-stool" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('stool', '황금변', this)" class="intake-btn-stool py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">예쁜 황금변</button>
-        <button type="button" onclick="selectIntake('stool', '무른변/설사', this)" class="intake-btn-stool py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">묽음/설사</button>
-        <button type="button" onclick="selectIntake('stool', '딱딱한변', this)" class="intake-btn-stool py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">딱딱함/변비</button>
+        <button type="button" onclick="selectIntake('stool', '황금변', this)" class="intake-btn-stool py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">예쁜 황금변</button>
+        <button type="button" onclick="selectIntake('stool', '무른변/설사', this)" class="intake-btn-stool py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">묽음/설사</button>
+        <button type="button" onclick="selectIntake('stool', '딱딱한변', this)" class="intake-btn-stool py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">딱딱함/변비</button>
       </div>
     </div>
 
@@ -398,9 +357,9 @@
         <span id="label-walk" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('walk', '30분이상', this)" class="intake-btn-walk py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">30분 이상</button>
-        <button type="button" onclick="selectIntake('walk', '10~20분', this)" class="intake-btn-walk py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">10~20분 가볍게</button>
-        <button type="button" onclick="selectIntake('walk', '못나감', this)" class="intake-btn-walk py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">못 나감</button>
+        <button type="button" onclick="selectIntake('walk', '30분이상', this)" class="intake-btn-walk py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">30분 이상</button>
+        <button type="button" onclick="selectIntake('walk', '10~20분', this)" class="intake-btn-walk py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">10~20분 가볍게</button>
+        <button type="button" onclick="selectIntake('walk', '못나감', this)" class="intake-btn-walk py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">못 나감</button>
       </div>
     </div>
 
@@ -413,9 +372,9 @@
         <span id="label-vital" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('vital', '쌩쌩함', this)" class="intake-btn-vital py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">쌩쌩하고 활발</button>
-        <button type="button" onclick="selectIntake('vital', '보통', this)" class="intake-btn-vital py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">평소처럼 얌전</button>
-        <button type="button" onclick="selectIntake('vital', '축처짐', this)" class="intake-btn-vital py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">축 처짐/잠만 잠</button>
+        <button type="button" onclick="selectIntake('vital', '쌩쌩함', this)" class="intake-btn-vital py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">쌩쌩하고 활발</button>
+        <button type="button" onclick="selectIntake('vital', '보통', this)" class="intake-btn-vital py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">평소처럼 얌전</button>
+        <button type="button" onclick="selectIntake('vital', '축처짐', this)" class="intake-btn-vital py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">축 처짐/잠만 잠</button>
       </div>
     </div>
 
@@ -456,7 +415,7 @@
 </section>
 
 <!-- Standard Unified 4-Tab Bottom Navigation Bar -->
-<nav class="fixed bottom-0 z-50 h-[62px] flex justify-around items-center px-3 py-1.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50">
+<nav class="fixed bottom-0 z-50 h-[54px] flex justify-around items-center px-3 py-1.5 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50">
   <!-- Tab: 홈 (Active) -->
   <a class="flex flex-col items-center justify-center bg-[#FFDAD4] text-[#AC3323] rounded-full px-4 py-1 active:scale-95 transition-transform" href="01_dashboard.html">
     <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">home</span>
@@ -575,14 +534,14 @@
     const labelEl = document.getElementById('label-' + type);
     if (labelEl) {
       labelEl.innerText = value;
-      labelEl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
+      labelEl.className = 'text-[11px] font-extrabold text-[#2563EB]';
     }
     updateDashboardWellnessCard();
     
     document.querySelectorAll('.intake-btn-' + type).forEach(b => {
-      b.className = 'intake-btn-' + type + ' py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium';
+      b.className = 'intake-btn-' + type + ' py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium';
     });
-    btn.className = 'intake-btn-' + type + ' py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium';
+    btn.className = 'intake-btn-' + type + ' py-1.5 rounded-lg bg-[#D9E6FC] text-[#1E3A8A] border-2 border-[#93C5FD] font-black shadow-sm active:scale-95 transition-all';
   }
 
   function saveIntakeRecord() {
@@ -597,47 +556,37 @@
     }
     localStorage.setItem('pet_daily_intake_' + today, JSON.stringify(intakeData));
     updateDashboardWellnessCard();
+    renderWeeklyCalendar();
     
     const btn = document.getElementById('btn-save-intake');
     btn.innerHTML = '<span class="material-symbols-outlined text-[19px] text-white">check_circle</span><span>오늘 체크 저장 완료!</span>';
     btn.className = 'w-full h-12 rounded-xl bg-emerald-600 text-white font-extrabold text-[15px] shadow-md transition-all flex items-center justify-center gap-1.5';
     
     setTimeout(() => {
+      // 1) 저장 완료 후 문진표 버튼들을 다시 처음 미선택 상태로 리셋!
+      ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
+        intakeData[k] = null;
+        const lbl = document.getElementById('label-' + k);
+        if (lbl) {
+          lbl.innerText = '선택 전';
+          lbl.className = 'text-[11px] font-medium text-slate-400';
+        }
+        document.querySelectorAll('.intake-btn-' + k).forEach(b => {
+          b.className = 'intake-btn-' + k + ' py-1.5 rounded-lg bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium';
+        });
+      });
+      if (document.getElementById('input-diet')) document.getElementById('input-diet').value = '';
+      if (document.getElementById('input-vaccine')) document.getElementById('input-vaccine').value = '';
+
       btn.innerHTML = '<span class="material-symbols-outlined text-[19px]">edit_calendar</span><span>오늘 건강 체크 저장하기</span>';
       btn.className = 'w-full h-12 rounded-xl bg-[#FF6F59] hover:bg-[#e05843] active:scale-[0.98] text-white font-extrabold text-[15px] shadow-md shadow-[#FF6F59]/30 transition-all flex items-center justify-center gap-1.5 cursor-pointer';
-    }, 2500);
+    }, 1500);
   }
 
   // 저장된 식단 불러오기
   window.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toLocaleDateString('ko-KR');
-    const savedIntake = localStorage.getItem('pet_daily_intake_' + today);
-    if (savedIntake) {
-      try {
-        const parsed = JSON.parse(savedIntake);
-        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
-          if (parsed[k]) {
-            intakeData[k] = parsed[k];
-            const lbl = document.getElementById('label-' + k);
-            if (lbl) {
-              lbl.innerText = parsed[k];
-              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
-            }
-            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
-              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
-                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
-              }
-            });
-          }
-        });
-        if (parsed.diet && document.getElementById('input-diet')) {
-          document.getElementById('input-diet').value = parsed.diet;
-        }
-        if (parsed.vaccine && document.getElementById('input-vaccine')) {
-          document.getElementById('input-vaccine').value = parsed.vaccine;
-        }
-      } catch(e) {}
-    }
+    // 시작 시에는 항상 깨끗하게 미선택 상태로 대기
 
     const savedProf = localStorage.getItem('pet_profile_data');
     if (!savedProf) {
@@ -748,20 +697,50 @@
   }
 
   function applyProfileToUI(p) {
-    if (!p) return;
     const nameEl = document.getElementById('pet-name-display');
     const genderEl = document.getElementById('pet-gender-display');
     const subEl = document.getElementById('pet-sub-display');
     const greetEl = document.getElementById('pet-greeting-display');
+    const avatarEl = document.getElementById('pet-avatar-wrapper');
+    const badgeTag = document.getElementById('pet-badge-tag');
 
-    if (nameEl && p.name) nameEl.innerText = p.name;
-    if (genderEl && p.gender) genderEl.innerText = p.gender;
+    if (!p || !p.name) {
+      // 미등록 클린 상태 유지
+      if (nameEl) nameEl.innerText = '반려동물을 등록해주세요';
+      if (genderEl) genderEl.classList.add('hidden');
+      if (subEl) {
+        subEl.innerText = '터치하여 아이 프로필(이름, 품종, 나이) 등록 ✏️';
+        subEl.className = 'text-xs text-slate-400 font-medium';
+      }
+      if (greetEl) greetEl.innerText = '우리 아이 첫 건강 케어를 시작해보세요! 🐾';
+      if (avatarEl) {
+        avatarEl.innerHTML = '<span class="material-symbols-outlined text-[24px]">pets</span>';
+        avatarEl.className = 'relative w-12 h-12 rounded-full ring-2 ring-slate-200 bg-slate-100 flex items-center justify-center text-slate-400 p-0.5';
+      }
+      if (badgeTag) badgeTag.classList.add('hidden');
+      return;
+    }
+
+    // 등록 완료 시 동적 UI 반영
+    if (nameEl) nameEl.innerText = p.name;
+    if (genderEl && p.gender) {
+      genderEl.innerText = p.gender;
+      genderEl.classList.remove('hidden');
+    }
     if (subEl) {
       const parts = [p.breed, p.age, p.weight].filter(Boolean);
       subEl.innerText = parts.join(' · ');
+      subEl.className = 'text-xs text-on-surface-variant font-medium';
     }
     if (greetEl && p.name) {
       greetEl.innerText = `${p.name}야, 오늘도 건강하게 신나게 놀자! 🌟`;
+    }
+    if (avatarEl) {
+      avatarEl.innerHTML = `
+        <img class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ"/>
+        <span class="absolute -top-1 -right-1 bg-primary text-on-primary text-[9px] font-bold px-1.5 py-0.2 rounded-full shadow-sm">건강인증</span>
+      `;
+      avatarEl.className = 'relative w-12 h-12 rounded-full ring-2 ring-primary-container p-0.5';
     }
   }
 
@@ -857,13 +836,39 @@
     const today = new Date().toLocaleDateString('ko-KR');
     const saved = localStorage.getItem('pet_daily_intake_' + today);
     
-    // 점수 계산 (intakeData 기반)
-    let score = 0;
     let data = intakeData;
     if (saved) {
       try { data = JSON.parse(saved); } catch(e) {}
     }
 
+    const badgeEl = document.getElementById('wellness-badge');
+    const badgeText = document.getElementById('wellness-badge-text');
+    const badgeDot = document.getElementById('wellness-badge-dot');
+    const scoreNum = document.getElementById('wellness-score-number');
+    const percentNum = document.getElementById('wellness-percent-number');
+    const ringCircle = document.getElementById('wellness-ring-circle');
+    const msgText = document.getElementById('wellness-message-text');
+
+    const cardContainer = document.getElementById('wellness-card-container');
+
+    // 기록이 하나도 없는 초기 상태: 창은 그대로 보여주되, 점수 0점 / 0% / 뱃지 숨김으로 깔끔하게 유지!
+    const hasAnyRecord = data && (data.appetite || data.water || data.stool || data.walk || data.vital);
+    if (!hasAnyRecord) {
+      if (badgeEl) badgeEl.classList.add('hidden');
+      if (scoreNum) scoreNum.innerText = '0';
+      if (percentNum) percentNum.innerText = '0%';
+      if (ringCircle) {
+        ringCircle.setAttribute('stroke-dashoffset', '94.2');
+        ringCircle.setAttribute('class', 'stroke-slate-300 transition-all duration-700');
+      }
+      if (msgText) msgText.innerText = '오늘 건강 체크를 완료하시면 맞춤형 AI 코칭이 열립니다! 🌟';
+      return;
+    }
+
+    // 문진표를 작성/저장한 경우에만 점수 반영 및 뱃지 활성화
+    if (badgeEl) badgeEl.classList.remove('hidden');
+
+    let score = 0;
     if (data.appetite === '완밥') score += 25;
     else if (data.appetite === '조금남김') score += 15;
 
@@ -881,15 +886,7 @@
 
     score = Math.max(0, Math.min(100, score));
 
-    // UI 요소 매핑
-    const badgeText = document.getElementById('wellness-badge-text');
-    const badgeDot = document.getElementById('wellness-badge-dot');
-    const badgeEl = document.getElementById('wellness-badge');
-    const scoreNum = document.getElementById('wellness-score-number');
-    const percentNum = document.getElementById('wellness-percent-number');
-    const ringCircle = document.getElementById('wellness-ring-circle');
-    // paw icon fixed
-    const msgText = document.getElementById('wellness-message-text');
+    // UI 요소 매핑 (이미 선언됨)
 
     if (scoreNum) scoreNum.innerText = score;
     if (percentNum) percentNum.innerText = score + '%';
@@ -997,22 +994,32 @@
       const isToday = (targetDateStr === todayStr);
       const isPast = targetDate < new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-      // 과거 또는 오늘 기록이 로컬스토리지에 있는지 확인
-      const hasRecord = localStorage.getItem('pet_daily_intake_' + targetDateStr);
+      // 과거 또는 오늘 기록이 로컬스토리지에 진짜로 있는지 확인
+      const rawRecord = localStorage.getItem('pet_daily_intake_' + targetDateStr);
+      let hasValidRecord = false;
+      if (rawRecord) {
+        try {
+          const rec = JSON.parse(rawRecord);
+          if (rec.appetite || rec.water || rec.stool || rec.walk || rec.vital) {
+            hasValidRecord = true;
+          }
+        } catch(e) {}
+      }
 
       if (isToday) {
-        // 오늘 (하이라이트 액티브 알약)
+        // 오늘 날짜 (하이라이트 박스)
+        // 저장을 누른 경우에만 흰색 동그라미 안에 체크(✓) 표시, 미작성 시에는 연한 대기 점선
         html += `
           <div class="flex flex-col items-center py-2 px-1 rounded-2xl bg-primary text-on-primary shadow-md ring-2 ring-primary/30 scale-105 z-10 transition-all">
             <span class="text-[11px] text-white/90 font-bold">${dayName}</span>
             <span class="text-xs font-black text-white mt-0.5">${dayNum}</span>
-            <div class="w-6 h-6 rounded-full bg-white text-primary flex items-center justify-center mt-1.5 shadow-sm">
-              <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+            <div class="w-6 h-6 rounded-full ${hasValidRecord ? 'bg-white text-primary' : 'bg-white/20 text-white/70'} flex items-center justify-center mt-1.5 shadow-sm">
+              <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">${hasValidRecord ? 'check' : 'edit'}</span>
             </div>
           </div>
         `;
-      } else if (isPast) {
-        // 과거 날짜 (체크 완료 발바닥 도장)
+      } else if (isPast && hasValidRecord) {
+        // 과거 날짜 중 '진짜로 기록한 날'에만 발바닥 표시!
         html += `
           <div class="flex flex-col items-center py-2 px-1 rounded-2xl bg-[#F9F8F5]">
             <span class="text-[11px] text-slate-500 font-medium">${dayName}</span>
@@ -1023,10 +1030,10 @@
           </div>
         `;
       } else {
-        // 아직 오지 않은 미래 날짜 (대기 점선 동그라미)
+        // 기록이 없는 과거 날짜 또는 아직 오지 않은 미래 날짜 (대기 점선 동그라미)
         const isSun = (dayName === '일');
         html += `
-          <div class="flex flex-col items-center py-2 px-1 rounded-2xl bg-[#F9F8F5] opacity-60">
+          <div class="flex flex-col items-center py-2 px-1 rounded-2xl bg-[#F9F8F5] ${isPast ? 'opacity-40' : 'opacity-60'}">
             <span class="text-[11px] ${isSun ? 'text-rose-400' : 'text-slate-400'} font-medium">${dayName}</span>
             <span class="text-xs font-bold text-slate-500 mt-0.5">${dayNum}</span>
             <div class="w-6 h-6 rounded-full border border-dashed border-[#D2CEBE] flex items-center justify-center mt-1.5">
@@ -1079,33 +1086,7 @@
 
 window.addEventListener('DOMContentLoaded', () => {
     const today = new Date().toLocaleDateString('ko-KR');
-    const savedIntake = localStorage.getItem('pet_daily_intake_' + today);
-    if (savedIntake) {
-      try {
-        const parsed = JSON.parse(savedIntake);
-        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
-          if (parsed[k]) {
-            intakeData[k] = parsed[k];
-            const lbl = document.getElementById('label-' + k);
-            if (lbl) {
-              lbl.innerText = parsed[k];
-              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
-            }
-            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
-              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
-                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
-              }
-            });
-          }
-        });
-        if (parsed.diet && document.getElementById('input-diet')) {
-          document.getElementById('input-diet').value = parsed.diet;
-        }
-        if (parsed.vaccine && document.getElementById('input-vaccine')) {
-          document.getElementById('input-vaccine').value = parsed.vaccine;
-        }
-      } catch(e) {}
-    }
+    // 시작 시에는 항상 깨끗하게 미선택 상태로 대기
 
     const savedProf = localStorage.getItem('pet_profile_data');
     if (!savedProf) {

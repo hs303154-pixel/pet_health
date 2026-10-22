@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+  // 이전 테스트 잔여 문진 데이터 전면 초기화 (클린 스타트)
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('pet_daily_intake_') || k.startsWith('pet_daily_ai_advice_')) {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch(e) {}
+</script>
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>반려동물 전체 통계</title>
@@ -56,14 +67,14 @@
         <!-- Circular Progress Ring SVG -->
         <svg class="w-full h-full -rotate-90" viewBox="0 0 64 64">
           <circle cx="32" cy="32" r="26" stroke="#f1f5f9" stroke-width="5" fill="none" />
-          <circle id="donut-circle" cx="32" cy="32" r="26" stroke="#10b981" stroke-width="5" stroke-dasharray="163.3" stroke-dashoffset="20" stroke-linecap="round" fill="none" class="transition-all duration-700" />
+          <circle id="donut-circle" cx="32" cy="32" r="26" stroke="#e2e8f0" stroke-width="5" fill="none" stroke-dasharray="163" stroke-dashoffset="163" stroke-linecap="round" />
         </svg>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span id="donut-status" class="text-xs font-black text-emerald-600 leading-tight">양호</span>
+          <span id="donut-status" class="text-xs font-bold text-slate-400 leading-tight">대기</span>
         </div>
       </div>
       <span class="text-[10px] font-bold text-slate-500 mt-1.5 flex items-center gap-0.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 오늘 종합
+        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> 오늘 종합
       </span>
     </div>
 
@@ -79,7 +90,7 @@
         <!-- 1. 식욕 -->
         <div class="flex flex-col items-center justify-end h-full gap-1">
           <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
-            <div id="bar-appetite" style="height: 90%;" class="w-full bg-[#10b981] rounded-t-sm transition-all duration-500"></div>
+            <div id="bar-appetite" style="height: 0%;" class="w-full bg-slate-300 rounded-t-sm transition-all duration-500"></div>
           </div>
           <span class="text-[9px] font-bold text-slate-600">식욕</span>
         </div>
@@ -87,7 +98,7 @@
         <!-- 2. 음수 -->
         <div class="flex flex-col items-center justify-end h-full gap-1">
           <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
-            <div id="bar-water" style="height: 80%;" class="w-full bg-[#3b82f6] rounded-t-sm transition-all duration-500"></div>
+            <div id="bar-water" style="height: 0%;" class="w-full bg-slate-300 rounded-t-sm transition-all duration-500"></div>
           </div>
           <span class="text-[9px] font-bold text-slate-600">음수</span>
         </div>
@@ -95,7 +106,7 @@
         <!-- 3. 대변 -->
         <div class="flex flex-col items-center justify-end h-full gap-1">
           <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
-            <div id="bar-stool" style="height: 100%;" class="w-full bg-[#10b981] rounded-t-sm transition-all duration-500"></div>
+            <div id="bar-stool" style="height: 0%;" class="w-full bg-slate-300 rounded-t-sm transition-all duration-500"></div>
           </div>
           <span class="text-[9px] font-bold text-slate-600">대변</span>
         </div>
@@ -103,7 +114,7 @@
         <!-- 4. 산책 -->
         <div class="flex flex-col items-center justify-end h-full gap-1">
           <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
-            <div id="bar-walk" style="height: 70%;" class="w-full bg-[#f59e0b] rounded-t-sm transition-all duration-500"></div>
+            <div id="bar-walk" style="height: 0%;" class="w-full bg-slate-300 rounded-t-sm transition-all duration-500"></div>
           </div>
           <span class="text-[9px] font-bold text-slate-600">산책</span>
         </div>
@@ -111,7 +122,7 @@
         <!-- 5. 활력 -->
         <div class="flex flex-col items-center justify-end h-full gap-1">
           <div class="w-3.5 bg-slate-200 rounded-t-sm relative flex items-end overflow-hidden h-full">
-            <div id="bar-vital" style="height: 95%;" class="w-full bg-[#10b981] rounded-t-sm transition-all duration-500"></div>
+            <div id="bar-vital" style="height: 0%;" class="w-full bg-slate-300 rounded-t-sm transition-all duration-500"></div>
           </div>
           <span class="text-[9px] font-bold text-slate-600">활력</span>
         </div>
@@ -154,52 +165,52 @@
         <div class="absolute inset-x-2 top-3/4 border-b border-dashed border-slate-200/90 pointer-events-none"></div>
         <div class="absolute inset-x-0 bottom-0 border-b-2 border-slate-300 pointer-events-none"></div>
 
-        <!-- 월 -->
+                <!-- 월 -->
         <div class="flex flex-col items-center justify-end h-full z-10 w-9">
           <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
-            <div class="w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 75%;"></div>
+            <div id="bar-day-1" class="w-full bg-slate-300 rounded-t-lg transition-all duration-500" style="height: 0%;"></div>
           </div>
         </div>
 
         <!-- 화 -->
         <div class="flex flex-col items-center justify-end h-full z-10 w-9">
           <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
-            <div class="w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 95%;"></div>
+            <div id="bar-day-2" class="w-full bg-slate-300 rounded-t-lg transition-all duration-500" style="height: 0%;"></div>
           </div>
         </div>
 
         <!-- 수 -->
         <div class="flex flex-col items-center justify-end h-full z-10 w-9">
           <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
-            <div class="w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 75%;"></div>
+            <div id="bar-day-3" class="w-full bg-slate-300 rounded-t-lg transition-all duration-500" style="height: 0%;"></div>
           </div>
         </div>
 
         <!-- 목 -->
         <div class="flex flex-col items-center justify-end h-full z-10 w-9">
           <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
-            <div class="w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 100%;"></div>
+            <div id="bar-day-4" class="w-full bg-slate-300 rounded-t-lg transition-all duration-500" style="height: 0%;"></div>
           </div>
         </div>
 
         <!-- 금 -->
         <div class="flex flex-col items-center justify-end h-full z-10 w-9">
           <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
-            <div class="w-full bg-[#f59e0b] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 65%;"></div>
+            <div id="bar-day-5" class="w-full bg-slate-300 rounded-t-lg transition-all duration-500" style="height: 0%;"></div>
           </div>
         </div>
 
         <!-- 토 -->
         <div class="flex flex-col items-center justify-end h-full z-10 w-9">
           <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
-            <div class="w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 75%;"></div>
+            <div id="bar-day-6" class="w-full bg-slate-300 rounded-t-lg transition-all duration-500" style="height: 0%;"></div>
           </div>
         </div>
 
-        <!-- 일 (오늘) -->
+        <!-- 일 -->
         <div class="flex flex-col items-center justify-end h-full z-10 w-9">
           <div class="w-7 bg-slate-200/50 rounded-t-lg h-full flex items-end overflow-hidden">
-            <div id="bar-today-fill" class="w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm" style="height: 0%;"></div>
+            <div id="bar-day-0" class="w-full bg-slate-300 rounded-t-lg transition-all duration-500" style="height: 0%;"></div>
           </div>
         </div>
       </div>
@@ -386,16 +397,33 @@
     return Math.max(0, Math.min(100, score));
   }
 
-  // 오늘 체크 데이터 가져오기
+  // 오늘 체크 데이터 가져오기 (날짜 포맷 정규화 및 유효 데이터 검증)
   function getTodayCheckData() {
-    const today = new Date().toLocaleDateString('ko-KR');
-    const saved = localStorage.getItem('pet_daily_intake_' + today);
-    if (!saved) return null;
-    try {
-      return JSON.parse(saved);
-    } catch(e) {
-      return null;
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    const d = now.getDate();
+    
+    // 가능한 모든 날짜 키 패턴 검사 (예: 2026. 10. 22. / 2026-10-22 / 2026.10.22)
+    const keys = [
+      now.toLocaleDateString('ko-KR'),
+      `${y}. ${m}. ${d}.`,
+      `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
+      `${y}.${m}.${d}`
+    ];
+
+    for (const k of keys) {
+      const saved = localStorage.getItem('pet_daily_intake_' + k);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && (parsed.appetite || parsed.water || parsed.stool || parsed.walk || parsed.vital)) {
+            return parsed;
+          }
+        } catch(e) {}
+      }
     }
+    return null;
   }
 
   // 기간 탭 전환 (최근 1주일 vs 최근 1개월) 및 종합 의견 문구 갱신
@@ -520,8 +548,8 @@
         `;
       } else {
         summaryText.innerHTML = `
-          최근 1주일간 전반적인 건강 상태는 <strong>안정적이고 양호한 흐름</strong>을 보이고 있습니다.<br/>
-          금요일 검진 시 귀 안쪽에 가벼운 붉은기가 감지되었으나 주말 동안 빠르게 호전되었습니다. 오늘 건강체크 문진을 완료하시면 실시간 분석 의견이 반영됩니다.
+          아직 누적된 건강 문진 기록이 없습니다.<br/>
+          <strong>[홈] 탭</strong>에서 오늘의 식사, 음수량, 대변 상태를 10초 체크하시면 실시간 분석 리포트와 수의학 맞춤 소견이 자동으로 생성됩니다.
         `;
       }
 
@@ -593,13 +621,53 @@
     }
   }
 
+  // 이번 주 월~일 실제 기록 연동
+  function renderWeekTrendBars() {
+    const now = new Date();
+    const currentDay = now.getDay(); // 0:일, 1:월, ..., 6:토
+    const diffToMonday = (currentDay === 0 ? -6 : 1) - currentDay;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMonday);
+
+    for (let i = 0; i < 7; i++) {
+      const targetDate = new Date(monday);
+      targetDate.setDate(monday.getDate() + i);
+      const dayIdx = targetDate.getDay();
+      const targetDateStr = targetDate.toLocaleDateString('ko-KR');
+
+      const barEl = document.getElementById('bar-day-' + dayIdx);
+      if (!barEl) continue;
+
+      const raw = localStorage.getItem('pet_daily_intake_' + targetDateStr);
+      if (raw) {
+        try {
+          const rec = JSON.parse(raw);
+          if (rec.appetite || rec.water || rec.stool || rec.walk || rec.vital) {
+            const sc = calculateIntakeScore(rec);
+            barEl.style.height = sc + '%';
+            if (sc >= 88) barEl.className = 'w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm';
+            else if (sc >= 75) barEl.className = 'w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm';
+            else if (sc >= 63) barEl.className = 'w-full bg-[#f59e0b] rounded-t-lg transition-all duration-500 shadow-sm';
+            else barEl.className = 'w-full bg-[#ef4444] rounded-t-lg transition-all duration-500 shadow-sm';
+            continue;
+          }
+        } catch(e) {}
+      }
+      // 기록이 없는 날은 깨끗하게 0%
+      barEl.style.height = '0%';
+    }
+  }
+
 window.addEventListener('DOMContentLoaded', () => {
     const data = getTodayCheckData();
-    if (data) {
+    renderWeekTrendBars();
+
+    const hasValidData = data && (data.appetite || data.water || data.stool || data.walk || data.vital);
+    if (hasValidData) {
       try {
         // 식욕
         const bApp = document.getElementById('bar-appetite');
-        if (bApp) {
+        if (bApp && data.appetite) {
           if (data.appetite === '완밥') { bApp.style.height = '100%'; bApp.className = 'w-full bg-[#10b981] rounded-t-sm'; }
           else if (data.appetite === '조금남김') { bApp.style.height = '60%'; bApp.className = 'w-full bg-[#f59e0b] rounded-t-sm'; }
           else { bApp.style.height = '25%'; bApp.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
@@ -607,7 +675,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         // 음수
         const bWat = document.getElementById('bar-water');
-        if (bWat) {
+        if (bWat && data.water) {
           if (data.water === '적당함') { bWat.style.height = '90%'; bWat.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
           else if (data.water === '많이마심') { bWat.style.height = '85%'; bWat.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
           else { bWat.style.height = '30%'; bWat.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
@@ -615,15 +683,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
         // 대변
         const bStool = document.getElementById('bar-stool');
-        if (bStool) {
+        if (bStool && data.stool) {
           if (data.stool === '황금변') { bStool.style.height = '100%'; bStool.className = 'w-full bg-[#10b981] rounded-t-sm'; }
-          else if (data.stool.includes('설사')) { bStool.style.height = '35%'; bStool.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
+          else if (data.stool.includes('설사') || data.stool.includes('묽음')) { bStool.style.height = '35%'; bStool.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
           else { bStool.style.height = '50%'; bStool.className = 'w-full bg-[#f59e0b] rounded-t-sm'; }
         }
 
         // 산책
         const bWalk = document.getElementById('bar-walk');
-        if (bWalk) {
+        if (bWalk && data.walk) {
           if (data.walk === '30분이상') { bWalk.style.height = '100%'; bWalk.className = 'w-full bg-[#10b981] rounded-t-sm'; }
           else if (data.walk.includes('10~20')) { bWalk.style.height = '65%'; bWalk.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
           else { bWalk.style.height = '20%'; bWalk.className = 'w-full bg-[#f59e0b] rounded-t-sm'; }
@@ -631,7 +699,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         // 활력
         const bVit = document.getElementById('bar-vital');
-        if (bVit) {
+        if (bVit && data.vital) {
           if (data.vital === '쌩쌩함') { bVit.style.height = '100%'; bVit.className = 'w-full bg-[#10b981] rounded-t-sm'; }
           else if (data.vital === '보통') { bVit.style.height = '70%'; bVit.className = 'w-full bg-[#3b82f6] rounded-t-sm'; }
           else { bVit.style.height = '25%'; bVit.className = 'w-full bg-[#ef4444] rounded-t-sm'; }
@@ -641,47 +709,46 @@ window.addEventListener('DOMContentLoaded', () => {
         const dStat = document.getElementById('donut-status');
         const dCirc = document.getElementById('donut-circle');
         if (dStat && dCirc) {
-          if (data.vital === '축처짐' || (data.stool && data.stool.includes('설사')) || data.appetite === '안먹음') {
+          const sc = calculateIntakeScore(data);
+          if (sc >= 88) {
+            dStat.innerText = '최상';
+            dStat.className = 'text-xs font-black text-emerald-600 leading-tight';
+            dCirc.setAttribute('stroke', '#10b981');
+            dCirc.setAttribute('stroke-dashoffset', '16');
+          } else if (sc >= 75) {
+            dStat.innerText = '양호';
+            dStat.className = 'text-xs font-black text-blue-600 leading-tight';
+            dCirc.setAttribute('stroke', '#3b82f6');
+            dCirc.setAttribute('stroke-dashoffset', '40');
+          } else {
             dStat.innerText = '주의';
             dStat.className = 'text-xs font-black text-amber-500 leading-tight';
             dCirc.setAttribute('stroke', '#f59e0b');
-            dCirc.setAttribute('stroke-dashoffset', '60');
-          } else {
-            dStat.innerText = '양호';
-            dStat.className = 'text-xs font-black text-emerald-600 leading-tight';
-            dCirc.setAttribute('stroke', '#10b981');
-            dCirc.setAttribute('stroke-dashoffset', '20');
-          }
-        }
-
-        // 오늘(일요일) 와이드 막대그래프 연동 (50 밑으로 내려가지 않음)
-        const todayFill = document.getElementById('bar-today-fill');
-        if (todayFill) {
-          const rawScore = calculateIntakeScore(data);
-          const displayScore = Math.max(50, Math.min(100, rawScore));
-          todayFill.style.height = displayScore + '%';
-
-          if (rawScore >= 88) {
-            todayFill.className = 'w-full bg-[#10b981] rounded-t-lg transition-all duration-500 shadow-sm';
-          } else if (rawScore >= 75) {
-            todayFill.className = 'w-full bg-[#3b82f6] rounded-t-lg transition-all duration-500 shadow-sm';
-          } else if (rawScore >= 63) {
-            todayFill.className = 'w-full bg-[#f59e0b] rounded-t-lg transition-all duration-500 shadow-sm';
-          } else {
-            todayFill.className = 'w-full bg-[#ef4444] rounded-t-lg transition-all duration-500 shadow-sm';
+            dCirc.setAttribute('stroke-dashoffset', '70');
           }
         }
       } catch(e) {}
     } else {
-      const todayFill = document.getElementById('bar-today-fill');
-      if (todayFill) todayFill.style.height = '0%';
+      // 기록이 없는 초기 상태: 도넛 링과 5대 바 모두 0%
+      const dStat = document.getElementById('donut-status');
+      const dCirc = document.getElementById('donut-circle');
+      if (dStat) {
+        dStat.innerText = '대기';
+        dStat.className = 'text-xs font-bold text-slate-400 leading-tight';
+      }
+      if (dCirc) {
+        dCirc.setAttribute('stroke', '#e2e8f0');
+        dCirc.setAttribute('stroke-dashoffset', '163');
+      }
+      ['bar-appetite', 'bar-water', 'bar-stool', 'bar-walk', 'bar-vital'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.height = '0%';
+      });
     }
 
-    // 초기 기간 탭(주간) 텍스트 렌더링
     setPeriod('week');
     if (data) fetchGeminiAdvice(data);
   });
 </script>
-
 </body>
 </html>

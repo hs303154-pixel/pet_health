@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 
 <html lang="ko"><head>
+<script>
+  // 이전 테스트 잔여 문진 데이터 전면 초기화 (클린 스타트)
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('pet_daily_intake_') || k.startsWith('pet_daily_ai_advice_')) {
+        localStorage.removeItem(k);
+      }
+    });
+  } catch(e) {}
+</script>
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>뽀삐 건강 다이어리 &amp; 웰니스 통계</title>
@@ -191,47 +202,44 @@
     <!-- Top Row: 아바타 + 기본 정보 + 수정 버튼 -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- 아바타 이미지 -->
-        <div class="relative w-14 h-14 rounded-full ring-2 ring-primary/20 p-0.5 flex-shrink-0">
-          <img id="mypage-pet-img" class="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJtwrRl4J9LUfpKdW4Aj2aWbh9VjoPmYKUz99zPAN338n04_nMtI3yrXHIJOWkX8Z2BMQXReaJNWhsN2tWLmk-8XxtNmNzBe3cIP6S83B6w_Lnf-00iFg3l6voWmexUdQFiNSazg0AvFXm5tH7bw6whlv_PDKNmJeklkg07eFvxhPdjMzzX1FHYpszDOQvwvqybRx2EMnq21YVyNyCuYSTdWi9EFbWXDSy2ni8BJKKIw9D6y-ZvS7GW9qP93m_XYMMvPT7alCNMmQ" alt="반려동물 사진"/>
-          <span class="absolute -bottom-1 -right-1 bg-emerald-500 text-white text-[8px] font-bold px-1.5 py-0.2 rounded-full shadow-sm">등록</span>
+        <!-- 아바타 이미지 (등록 전 기본 회색 발바닥) -->
+        <div id="mypage-avatar-wrap" class="relative w-14 h-14 rounded-full ring-2 ring-slate-200 bg-slate-100 flex items-center justify-center text-slate-400 p-0.5 flex-shrink-0">
+          <span class="material-symbols-outlined text-[28px]">pets</span>
         </div>
 
         <!-- 이름 및 핵심 태그 -->
         <div class="flex flex-col gap-0.5">
           <div class="flex items-center gap-1.5">
-            <span id="mypage-name" class="text-lg font-extrabold text-slate-800">뽀삐</span>
-            <span id="mypage-gender" class="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">여아 ♀</span>
-            <span id="mypage-neutered" class="bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold px-1.5 py-0.5 rounded-md">중성화 완료</span>
+            <span id="mypage-name" class="text-base font-extrabold text-slate-800">반려동물을 등록해주세요</span>
+            <span id="mypage-gender" class="hidden bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">여아 ♀</span>
+            <span id="mypage-neutered" class="hidden bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold px-1.5 py-0.5 rounded-md">중성화 완료</span>
           </div>
-          <span id="mypage-breed" class="text-xs font-semibold text-slate-500">말티즈 (강아지)</span>
+          <span id="mypage-breed" class="text-xs font-medium text-slate-400">터치하여 프로필 등록 ✏️</span>
         </div>
       </div>
 
-      <!-- 수정 버튼 -->
+      <!-- 등록 버튼 -->
       <button onclick="openMypageModal()" class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-600 text-xs font-bold transition-all flex items-center gap-0.5 cursor-pointer">
-        <span>수정</span>
+        <span id="mypage-btn-text">등록</span>
         <span class="material-symbols-outlined text-[14px]">edit</span>
       </button>
     </div>
 
-    <!-- 4대 상세 스펙 그리드 (나이, 체중, 종류, 등록상태) -->
+    <!-- 4대 상세 스펙 그리드 (등록 전 - 빈칸) -->
     <div class="grid grid-cols-3 gap-2 bg-[#FAF9F5] p-2.5 rounded-xl border border-slate-100 text-center">
       <div class="flex flex-col">
         <span class="text-[10px] font-bold text-slate-400">나이</span>
-        <span id="mypage-age" class="text-xs font-black text-slate-800 mt-0.5">3살 2개월</span>
+        <span id="mypage-age" class="text-xs font-black text-slate-400 mt-0.5">-</span>
       </div>
       <div class="flex flex-col border-x border-slate-200/60">
         <span class="text-[10px] font-bold text-slate-400">몸무게</span>
-        <span id="mypage-weight" class="text-xs font-black text-slate-800 mt-0.5">3.4 kg</span>
+        <span id="mypage-weight" class="text-xs font-black text-slate-400 mt-0.5">-</span>
       </div>
       <div class="flex flex-col">
         <span class="text-[10px] font-bold text-slate-400">품종 구분</span>
-        <span id="mypage-type" class="text-xs font-black text-slate-800 mt-0.5">소형견</span>
+        <span id="mypage-type" class="text-xs font-black text-slate-400 mt-0.5">-</span>
       </div>
     </div>
-
-  </section>
 
   <!-- 1. 예방접종 현황 카드 (최근 실제 접종 완료 3건) -->
   <section class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 flex flex-col gap-2.5">
@@ -249,33 +257,14 @@
       </button>
     </div>
 
-    <!-- 실제 접종 완료 내역 3건 컴팩트 나열 (예정 제외) -->
+    <!-- 접종 내역 목록 (초기 클린 상태) -->
     <div class="flex flex-col gap-1.5">
-      <!-- 1건 -->
-      <div class="flex items-center justify-between p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90 text-xs">
+      <div class="flex items-center justify-between p-2.5 bg-[#FAF9F5] rounded-xl border border-slate-100/90 text-xs">
         <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          <span id="mypage-latest-vaccine" class="font-extrabold text-slate-800">광견병 백신 접종</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+          <span id="mypage-latest-vaccine" class="font-bold text-slate-600">등록된 최근 접종 기록이 없습니다</span>
         </div>
-        <span class="text-[11px] font-bold text-slate-400">2026.09.15</span>
-      </div>
-
-      <!-- 2건 -->
-      <div class="flex items-center justify-between p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-          <span class="font-extrabold text-slate-800">심장사상충 예방약 급여</span>
-        </div>
-        <span class="text-[11px] font-bold text-slate-400">2026.10.05</span>
-      </div>
-
-      <!-- 3건 -->
-      <div class="flex items-center justify-between p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          <span class="font-extrabold text-slate-800">켄넬코프 (기관지염) 접종</span>
-        </div>
-        <span class="text-[11px] font-bold text-slate-400">2026.05.20</span>
+        <span class="text-[10px] font-bold text-slate-400">문진표에서 기록</span>
       </div>
     </div>
   </section>
@@ -293,45 +282,13 @@
       </button>
     </div>
 
-    <!-- 최근 문진 4줄 컴팩트 나열 -->
-    <div class="flex flex-col gap-1.5">
-      <!-- 1행 (2026.10.21 - 오늘 실시간 연동) -->
-      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-black text-slate-800">2026년 10월 21일</span>
-          <span id="mypage-intake-badge" class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700">최상</span>
-        </div>
-        <span id="mypage-intake-desc" class="text-[11px] text-slate-500 font-medium">식욕 완밥 · 음수 적당함 · 황금변 · 산책 30분</span>
+    <!-- 최근 문진 동적 렌더링 컨테이너 -->
+    <div id="mypage-intake-container" class="flex flex-col gap-1.5">
+      <div id="mypage-empty-box" class="py-6 px-3 bg-[#FAF9F5] rounded-xl border border-slate-100 text-center flex flex-col items-center justify-center gap-1.5">
+        <span class="text-xl">📝</span>
+        <span class="text-xs font-bold text-slate-600">아직 기록된 건강 문진이 없습니다</span>
+        <span class="text-[11px] text-slate-400">홈 탭에서 오늘의 문진을 기록하면 여기에 차곡차곡 쌓여요!</span>
       </div>
-
-      <!-- 2행 (2026.10.20) -->
-      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-black text-slate-800">2026년 10월 20일</span>
-          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700">양호</span>
-        </div>
-        <span class="text-[11px] text-slate-500 font-medium">식욕 완밥 · 음수 적당함 · 정상변 · 산책 20분</span>
-      </div>
-
-      <!-- 3행 (2026.10.19) -->
-      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-black text-slate-800">2026년 10월 19일</span>
-          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">주의</span>
-        </div>
-        <span class="text-[11px] text-slate-500 font-medium">식욕 보통 · 음수 적음 · 묽은변 · 산책 0분</span>
-      </div>
-
-      <!-- 4행 (2026.10.18) -->
-      <div class="flex flex-col gap-0.5 p-2 bg-[#FAF9F5] rounded-xl border border-slate-100/90">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-black text-slate-800">2026년 10월 18일</span>
-          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700">최상</span>
-        </div>
-        <span class="text-[11px] text-slate-500 font-medium">식욕 완밥 · 음수 적당함 · 황금변 · 산책 40분</span>
-      </div>
-
-
     </div>
   </section>
 
@@ -707,13 +664,13 @@
         document.getElementById('edit-weight').value = p.weight || '';
       } catch(e) {}
     } else {
-      document.getElementById('edit-name').value = '뽀삐';
+      document.getElementById('edit-name').value = '';
       document.getElementById('edit-type').value = '강아지';
-      document.getElementById('edit-breed').value = '말티즈';
+      document.getElementById('edit-breed').value = '';
       document.getElementById('edit-gender').value = '여아 ♀';
       document.getElementById('edit-neutered').value = '완료';
-      document.getElementById('edit-age').value = '3살 2개월';
-      document.getElementById('edit-weight').value = '3.4kg';
+      document.getElementById('edit-age').value = '';
+      document.getElementById('edit-weight').value = '';
     }
     modal.classList.remove('hidden');
   }
