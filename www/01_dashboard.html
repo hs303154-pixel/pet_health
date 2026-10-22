@@ -19,6 +19,21 @@
     if (savedIntake) {
       try {
         const parsed = JSON.parse(savedIntake);
+        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
+          if (parsed[k]) {
+            intakeData[k] = parsed[k];
+            const lbl = document.getElementById('label-' + k);
+            if (lbl) {
+              lbl.innerText = parsed[k];
+              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
+            }
+            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
+              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
+                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
+              }
+            });
+          }
+        });
         if (parsed.diet && document.getElementById('input-diet')) {
           document.getElementById('input-diet').value = parsed.diet;
         }
@@ -152,6 +167,21 @@
     if (savedIntake) {
       try {
         const parsed = JSON.parse(savedIntake);
+        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
+          if (parsed[k]) {
+            intakeData[k] = parsed[k];
+            const lbl = document.getElementById('label-' + k);
+            if (lbl) {
+              lbl.innerText = parsed[k];
+              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
+            }
+            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
+              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
+                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
+              }
+            });
+          }
+        });
         if (parsed.diet && document.getElementById('input-diet')) {
           document.getElementById('input-diet').value = parsed.diet;
         }
@@ -316,10 +346,10 @@
     <div class="flex flex-col gap-1">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold text-slate-800">🍚 식욕 (밥 먹은 양)</span>
-        <span id="label-appetite" class="text-[11px] font-extrabold text-[#FF6F59]">완밥</span>
+        <span id="label-appetite" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('appetite', '완밥', this)" class="intake-btn-appetite py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20">완밥 싹 비움</button>
+        <button type="button" onclick="selectIntake('appetite', '완밥', this)" class="intake-btn-appetite py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">완밥 싹 비움</button>
         <button type="button" onclick="selectIntake('appetite', '조금남김', this)" class="intake-btn-appetite py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">조금 남김</button>
         <button type="button" onclick="selectIntake('appetite', '안먹음', this)" class="intake-btn-appetite py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">안 먹음(거부)</button>
       </div>
@@ -335,10 +365,10 @@
     <div class="flex flex-col gap-1.5">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold text-slate-800">💧 음수량 (물 마신 양)</span>
-        <span id="label-water" class="text-[11px] font-extrabold text-[#FF6F59]">적당함</span>
+        <span id="label-water" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('water', '적당함', this)" class="intake-btn-water py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20">평소대로</button>
+        <button type="button" onclick="selectIntake('water', '적당함', this)" class="intake-btn-water py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">평소대로</button>
         <button type="button" onclick="selectIntake('water', '많이마심', this)" class="intake-btn-water py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">많이 마심</button>
         <button type="button" onclick="selectIntake('water', '거의안마심', this)" class="intake-btn-water py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">거의 안 마심</button>
       </div>
@@ -350,10 +380,10 @@
     <div class="flex flex-col gap-1.5">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold text-slate-800">💩 대변 (응가 상태)</span>
-        <span id="label-stool" class="text-[11px] font-extrabold text-[#FF6F59]">황금변</span>
+        <span id="label-stool" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('stool', '황금변', this)" class="intake-btn-stool py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20">예쁜 황금변</button>
+        <button type="button" onclick="selectIntake('stool', '황금변', this)" class="intake-btn-stool py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">예쁜 황금변</button>
         <button type="button" onclick="selectIntake('stool', '무른변/설사', this)" class="intake-btn-stool py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">묽음/설사</button>
         <button type="button" onclick="selectIntake('stool', '딱딱한변', this)" class="intake-btn-stool py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">딱딱함/변비</button>
       </div>
@@ -365,10 +395,10 @@
     <div class="flex flex-col gap-1.5">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold text-slate-800">🦮 산책 활동량</span>
-        <span id="label-walk" class="text-[11px] font-extrabold text-[#FF6F59]">30분 이상</span>
+        <span id="label-walk" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('walk', '30분이상', this)" class="intake-btn-walk py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20">30분 이상</button>
+        <button type="button" onclick="selectIntake('walk', '30분이상', this)" class="intake-btn-walk py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">30분 이상</button>
         <button type="button" onclick="selectIntake('walk', '10~20분', this)" class="intake-btn-walk py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">10~20분 가볍게</button>
         <button type="button" onclick="selectIntake('walk', '못나감', this)" class="intake-btn-walk py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">못 나감</button>
       </div>
@@ -380,10 +410,10 @@
     <div class="flex flex-col gap-1.5">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold text-slate-800">⚡ 기운 / 활력</span>
-        <span id="label-vital" class="text-[11px] font-extrabold text-[#FF6F59]">쌩쌩함</span>
+        <span id="label-vital" class="text-[11px] font-medium text-slate-400">선택 전</span>
       </div>
       <div class="grid grid-cols-3 gap-1.5 text-xs font-semibold">
-        <button type="button" onclick="selectIntake('vital', '쌩쌩함', this)" class="intake-btn-vital py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20">쌩쌩하고 활발</button>
+        <button type="button" onclick="selectIntake('vital', '쌩쌩함', this)" class="intake-btn-vital py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">쌩쌩하고 활발</button>
         <button type="button" onclick="selectIntake('vital', '보통', this)" class="intake-btn-vital py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">평소처럼 얌전</button>
         <button type="button" onclick="selectIntake('vital', '축처짐', this)" class="intake-btn-vital py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium">축 처짐/잠만 잠</button>
       </div>
@@ -533,11 +563,11 @@
 
 <script>
   const intakeData = {
-    appetite: '완밥',
-    water: '적당함',
-    stool: '황금변',
-    walk: '30분이상',
-    vital: '쌩쌩함'
+    appetite: null,
+    water: null,
+    stool: null,
+    walk: null,
+    vital: null
   };
 
   function selectIntake(type, value, btn) {
@@ -552,7 +582,7 @@
     document.querySelectorAll('.intake-btn-' + type).forEach(b => {
       b.className = 'intake-btn-' + type + ' py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium';
     });
-    btn.className = 'intake-btn-' + type + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
+    btn.className = 'intake-btn-' + type + ' py-2 rounded-xl bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 active:scale-95 transition-all font-medium';
   }
 
   function saveIntakeRecord() {
@@ -585,6 +615,21 @@
     if (savedIntake) {
       try {
         const parsed = JSON.parse(savedIntake);
+        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
+          if (parsed[k]) {
+            intakeData[k] = parsed[k];
+            const lbl = document.getElementById('label-' + k);
+            if (lbl) {
+              lbl.innerText = parsed[k];
+              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
+            }
+            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
+              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
+                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
+              }
+            });
+          }
+        });
         if (parsed.diet && document.getElementById('input-diet')) {
           document.getElementById('input-diet').value = parsed.diet;
         }
@@ -1038,6 +1083,21 @@ window.addEventListener('DOMContentLoaded', () => {
     if (savedIntake) {
       try {
         const parsed = JSON.parse(savedIntake);
+        ['appetite', 'water', 'stool', 'walk', 'vital'].forEach(k => {
+          if (parsed[k]) {
+            intakeData[k] = parsed[k];
+            const lbl = document.getElementById('label-' + k);
+            if (lbl) {
+              lbl.innerText = parsed[k];
+              lbl.className = 'text-[11px] font-extrabold text-[#FF6F59]';
+            }
+            document.querySelectorAll('.intake-btn-' + k).forEach(btn => {
+              if (btn.innerText.includes(parsed[k]) || (parsed[k] === '30분이상' && btn.innerText.includes('30분 이상'))) {
+                btn.className = 'intake-btn-' + k + ' py-2 rounded-xl bg-[#FF6F59] text-white border border-[#E6563F] font-black shadow-md active:scale-95 transition-all ring-2 ring-[#FF6F59]/20';
+              }
+            });
+          }
+        });
         if (parsed.diet && document.getElementById('input-diet')) {
           document.getElementById('input-diet').value = parsed.diet;
         }
