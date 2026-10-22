@@ -2,6 +2,16 @@
 
 <html lang="ko"><head>
 <script>
+
+  // 앱 전체 데이터 초기화 함수
+  function resetAllAppData() {
+    if (confirm('등록된 반려동물 프로필과 모든 건강 체크 기록을 삭제하고 처음 상태로 되돌리시겠습니까?')) {
+      localStorage.clear();
+      alert('모든 데이터가 초기화되었습니다. 처음 화면으로 이동합니다.');
+      location.href = '01_dashboard.html';
+    }
+  }
+
   let editPhotoData = null;
 
   function handleMypagePhotoSelect(e) {
@@ -678,6 +688,12 @@
 
       <button type="submit" class="w-full mt-2 py-3 rounded-2xl bg-primary text-white font-extrabold text-sm shadow-md active:scale-[0.98] transition-all cursor-pointer">
         저장 완료
+      </button>
+
+      <!-- 데이터 전체 초기화 버튼 -->
+      <button type="button" onclick="resetAllAppData()" class="w-full py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 active:scale-[0.98] transition-all flex items-center justify-center gap-1 cursor-pointer">
+        <span class="material-symbols-outlined text-[15px]">delete_forever</span>
+        <span>등록 데이터 전체 초기화 (처음 상태로)</span>
       </button>
     </form>
   </div>
