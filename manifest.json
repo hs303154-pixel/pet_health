@@ -1,6 +1,6 @@
 {
-  "name": "루이의 건강 - 반려동물 AI 웰니스",
-  "short_name": "루이의건강",
+  "name": "댕냥다이어리",
+  "short_name": "댕냥다이어리",
   "start_url": "./01_dashboard.html",
   "display": "standalone",
   "background_color": "#FDFBF7",
