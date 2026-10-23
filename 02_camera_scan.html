@@ -530,7 +530,36 @@
     btn.disabled = true;
 
     lastAiResult = null;
-    if (currentImageBase64) {
+    let petProfile = null;
+    try {
+      const savedProf = localStorage.getItem('pet_profile_data');
+      if (savedProf) petProfile = JSON.parse(savedProf);
+    } catch(e) {}
+
+    // 1순위: Vercel Serverless Gemini API (/api/analyze) 실시간 호출
+    try {
+      const resp = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image: currentImageBase64 || null,
+          query: query || '',
+          petProfile: petProfile
+        })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.status === 'success' && data.data) {
+          lastAiResult = data.data;
+          console.log('[Gemini 3.8 Flash 분석 완료]:', lastAiResult);
+        }
+      }
+    } catch (err) {
+      console.warn('Vercel API /api/analyze 호출 실패:', err);
+    }
+
+    // 2순위 Fallback: 로컬 파이썬 서버가 켜져 있는 경우
+    if (!lastAiResult && currentImageBase64) {
       try {
         const resp = await fetch('http://127.0.0.1:8000/api/predict', {
           method: 'POST',
@@ -543,9 +572,7 @@
             lastAiResult = data.data || data.primary;
           }
         }
-      } catch (err) {
-        console.warn('AI Server offline or local fetch error:', err);
-      }
+      } catch (err) {}
     }
 
     btn.innerHTML = originalBtnText;
