@@ -543,70 +543,7 @@
 
     <!-- 내부 독립 부드러운 스크롤 영역 -->
     <div id="intake-history-list" class="flex-1 overflow-y-auto modal-scroll pr-1.5 py-3 flex flex-col gap-2 text-xs">
-      
-      <!-- 10.21 -->
-      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 21일</span>
-          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (96점)</span>
-        </div>
-        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 30분 이상</span>
-      </div>
-
-      <!-- 10.20 -->
-      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 20일</span>
-          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded">양호 (85점)</span>
-        </div>
-        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 보통 · 산책: 10~20분</span>
-      </div>
-
-      <!-- 10.19 -->
-      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 19일</span>
-          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded">주의 (65점)</span>
-        </div>
-        <span class="text-[11px] text-slate-500">식욕: 조금남김 · 음수: 적음 · 대변: 묽은변 · 산책: 0분</span>
-      </div>
-
-      <!-- 10.18 -->
-      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 18일</span>
-          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (95점)</span>
-        </div>
-        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 40분</span>
-      </div>
-
-      <!-- 10.17 -->
-      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 17일</span>
-          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded">양호 (80점)</span>
-        </div>
-        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 보통 · 산책: 25분</span>
-      </div>
-
-      <!-- 10.16 -->
-      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 16일</span>
-          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (92점)</span>
-        </div>
-        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 35분</span>
-      </div>
-
-      <!-- 10.15 -->
-      <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1">
-        <div class="flex items-center justify-between">
-          <span class="font-extrabold text-slate-800 text-xs">2026년 10월 15일</span>
-          <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 text-emerald-700 rounded">최상 (90점)</span>
-        </div>
-        <span class="text-[11px] text-slate-500">식욕: 완밥 · 음수: 적당함 · 대변: 황금변 · 산책: 30분</span>
-      </div>
-
+      <!-- loadUnifiedHealthHistory() 에서 실제 데이터 동적 렌더링 -->
     </div>
 
     <!-- 하단 고정 닫기 버튼 -->
@@ -833,28 +770,178 @@
     document.getElementById('modal-intake-history').classList.add('hidden');
   }
 
-  // 오늘 체크한 문진 데이터 마이페이지에 연동
-  function loadTodayIntakeToMypage() {
-    const today = new Date().toLocaleDateString('ko-KR');
-    const saved = localStorage.getItem('pet_daily_intake_' + today);
-    if (saved) {
-      try {
-        const d = JSON.parse(saved);
-        const descEl = document.getElementById('mypage-intake-desc');
-        const badgeEl = document.getElementById('mypage-intake-badge');
-        const vaccineEl = document.getElementById('mypage-latest-vaccine');
-        
-        if (descEl) {
-          descEl.innerText = `식욕 ${d.appetite || '완밥'} · 음수 ${d.water || '적당함'} · 대변 ${d.stool || '황금변'} · 산책 ${d.walk || '30분이상'}`;
+  // 점수 계산 헬퍼
+  function calcScore(d) {
+    let s = 0;
+    if (d.appetite === '완밥') s += 25;
+    else if (d.appetite === '조금남김') s += 15;
+    if (d.vital === '쌩쌩함') s += 25;
+    else if (d.vital === '보통') s += 18;
+    if (d.stool === '황금변') s += 20;
+    else if (d.stool && (d.stool.includes('딱딱') || d.stool.includes('변비'))) s += 12;
+    if (d.water === '적당함') s += 15;
+    else if (d.water === '많이마심') s += 10;
+    if (d.walk === '30분이상') s += 15;
+    else if (d.walk && d.walk.includes('10~20')) s += 10;
+    return Math.max(0, Math.min(100, s));
+  }
+
+  // 문진 기록 + AI 스캔 결과를 날짜별로 통합 렌더링
+  function loadUnifiedHealthHistory() {
+    const mainContainer = document.getElementById('mypage-intake-container');
+    const modalContainer = document.getElementById('intake-history-list');
+    
+    // 1. 모든 일자별 문진표(pet_daily_intake_*) 수집
+    const intakeMap = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k.startsWith('pet_daily_intake_')) {
+        const dateStr = k.replace('pet_daily_intake_', '').trim();
+        try {
+          const val = JSON.parse(localStorage.getItem(k));
+          if (val && (val.appetite || val.water || val.stool || val.walk || val.vital)) {
+            intakeMap[dateStr] = val;
+          }
+        } catch(e) {}
+      }
+    }
+
+    // 2. AI 스캔 및 증상 상담 기록(pet_symptom_records) 수집
+    const scanList = JSON.parse(localStorage.getItem('pet_symptom_records') || '[]');
+    const scanMap = {};
+    scanList.forEach(s => {
+      if (s.date) {
+        if (!scanMap[s.date]) scanMap[s.date] = [];
+        scanMap[s.date].push(s);
+      }
+    });
+
+    // 3. 날짜 합집합 생성 및 최신순 정렬
+    const allDates = Array.from(new Set([...Object.keys(intakeMap), ...Object.keys(scanMap)]));
+    allDates.sort((a, b) => new Date(b) - new Date(a));
+
+    // 최근 접종 기록 갱신
+    const vaccineEl = document.getElementById('mypage-latest-vaccine');
+    let foundVaccine = false;
+    for (const dStr of allDates) {
+      if (intakeMap[dStr] && intakeMap[dStr].vaccine) {
+        if (vaccineEl) {
+          vaccineEl.innerText = `${intakeMap[dStr].vaccine} (${dStr})`;
+          foundVaccine = true;
+          break;
         }
-        if (d.vaccine && vaccineEl) {
-          vaccineEl.innerText = `${d.vaccine} (오늘 투약/접종 기록)`;
-        }
-      } catch(e) {}
+      }
+    }
+    if (!foundVaccine && vaccineEl) {
+      vaccineEl.innerText = '등록된 최근 접종 기록이 없습니다';
+    }
+
+    // 데이터가 없는 초기 상태
+    if (allDates.length === 0) {
+      if (mainContainer) {
+        mainContainer.innerHTML = `
+          <div id="mypage-empty-box" class="py-6 px-3 bg-[#FAF9F5] rounded-xl border border-slate-100 text-center flex flex-col items-center justify-center gap-1.5">
+            <span class="text-xl">📝</span>
+            <span class="text-xs font-bold text-slate-600">아직 기록된 건강 문진이 없습니다</span>
+            <span class="text-[11px] text-slate-400">홈 탭에서 오늘의 문진을 기록하면 여기에 차곡차곡 쌓여요!</span>
+          </div>
+        `;
+      }
+      if (modalContainer) {
+        modalContainer.innerHTML = `
+          <div class="py-12 text-center text-slate-400 flex flex-col items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-3xl">history_edu</span>
+            <span>아직 저장된 건강 문진 기록이 없습니다.</span>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    // 카드 HTML 생성 함수
+    function buildCardHtml(dStr) {
+      const intake = intakeMap[dStr];
+      const scans = scanMap[dStr] || [];
+
+      let scoreBadge = '';
+      let intakeText = '문진 체크 기록 없음';
+
+      if (intake) {
+        const sc = calcScore(intake);
+        let badgeColor = 'bg-emerald-100 text-emerald-700';
+        let badgeLabel = '최상';
+        if (sc < 63) { badgeColor = 'bg-rose-100 text-rose-700'; badgeLabel = '주의'; }
+        else if (sc < 75) { badgeColor = 'bg-amber-100 text-amber-800'; badgeLabel = '보통'; }
+        else if (sc < 88) { badgeColor = 'bg-blue-100 text-blue-700'; badgeLabel = '양호'; }
+
+        scoreBadge = `<span class="text-[10px] font-extrabold px-1.5 py-0.2 ${badgeColor} rounded">${badgeLabel} (${sc}점)</span>`;
+        const parts = [];
+        if (intake.appetite) parts.push(`식욕: ${intake.appetite}`);
+        if (intake.water) parts.push(`음수: ${intake.water}`);
+        if (intake.stool) parts.push(`대변: ${intake.stool}`);
+        if (intake.walk) parts.push(`산책: ${intake.walk}`);
+        if (intake.vital) parts.push(`활력: ${intake.vital}`);
+        intakeText = parts.join(' · ');
+      }
+
+      // AI 스캔 결과 섹션 (있을 경우 카드 안에 결합!)
+      let scansHtml = '';
+      if (scans.length > 0) {
+        scansHtml = scans.map(sc => {
+          let aiBadge = '<span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-700">AI 스캔</span>';
+          let aiDisease = '';
+          if (sc.aiResult) {
+            const sev = sc.aiResult.severity || '주의';
+            const col = sev.includes('위험') ? 'bg-red-100 text-red-700' : (sev.includes('주의') ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700');
+            aiBadge = `<span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded ${col}">AI ${sev}</span>`;
+            if (sc.aiResult.candidates && sc.aiResult.candidates.length > 0) {
+              aiDisease = ` · 의심: <strong class="text-slate-800">${sc.aiResult.candidates[0].disease}</strong>`;
+            }
+          }
+
+          const imgTag = sc.image ? `<img src="${sc.image}" class="w-10 h-10 rounded-lg object-cover border border-slate-200 flex-shrink-0" />` : '';
+
+          return `
+            <div class="mt-1.5 p-2 bg-white rounded-lg border border-slate-200/80 flex items-center gap-2">
+              ${imgTag}
+              <div class="flex flex-col flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  ${aiBadge}
+                  <span class="text-[10px] text-slate-400 font-medium">${sc.time || ''}</span>
+                </div>
+                <p class="text-[11px] text-slate-700 truncate mt-0.5">
+                  <span>${sc.symptom}</span>${aiDisease}
+                </p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      return `
+        <div class="p-3 rounded-xl bg-[#FAF9F5] border border-slate-100 flex flex-col gap-1 shadow-2xs">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-slate-800 text-xs">${dStr}</span>
+            ${scoreBadge}
+          </div>
+          <span class="text-[11px] text-slate-500 leading-relaxed">${intakeText}</span>
+          ${scansHtml}
+        </div>
+      `;
+    }
+
+    // 마이페이지 메인 카드 (최근 4개)
+    if (mainContainer) {
+      mainContainer.innerHTML = allDates.slice(0, 4).map(buildCardHtml).join('');
+    }
+
+    // 전체보기 모달 (전체 목록)
+    if (modalContainer) {
+      modalContainer.innerHTML = allDates.map(buildCardHtml).join('');
     }
   }
 
-  window.addEventListener('DOMContentLoaded', loadTodayIntakeToMypage);
+  window.addEventListener('DOMContentLoaded', loadUnifiedHealthHistory);
 </script>
 
 </body></html>
