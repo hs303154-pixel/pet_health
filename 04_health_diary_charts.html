@@ -3,6 +3,69 @@
 <html lang="ko"><head>
 <script>
 
+  // 등록 시점 및 경과 개월 수를 반영한 현재 나이 계산기
+  function calculateCurrentAge(regAgeStr, regDateStr) {
+    if (!regAgeStr) return { currentAge: '-', regAge: '-', monthsPassed: 0 };
+    
+    // 개월 수 파싱 (예: "3살 2개월", "5살", "8개월", "3")
+    let baseMonths = 0;
+    const str = String(regAgeStr).trim();
+    
+    const yearMatch = str.match(/(\d+)\s*(살|년|세)/);
+    const monthMatch = str.match(/(\d+)\s*(개월|달)/);
+    
+    if (yearMatch) {
+      baseMonths += parseInt(yearMatch[1], 10) * 12;
+    }
+    if (monthMatch) {
+      baseMonths += parseInt(monthMatch[1], 10);
+    }
+    // 숫자만 달랑 입력한 경우 (예: "3" -> 3살로 간주)
+    if (!yearMatch && !monthMatch) {
+      const pureNum = parseInt(str, 10);
+      if (!isNaN(pureNum)) {
+        baseMonths = pureNum * 12;
+      }
+    }
+
+    if (baseMonths <= 0) {
+      return { currentAge: regAgeStr, regAge: regAgeStr, monthsPassed: 0 };
+    }
+
+    // 경과 개월 수 계산
+    let passedMonths = 0;
+    if (regDateStr) {
+      const regD = new Date(regDateStr);
+      if (!isNaN(regD.getTime())) {
+        const now = new Date();
+        const diffYears = now.getFullYear() - regD.getFullYear();
+        const diffMonths = now.getMonth() - regD.getMonth();
+        passedMonths = (diffYears * 12) + diffMonths;
+        // 일(day) 차이 고려
+        if (now.getDate() < regD.getDate()) {
+          passedMonths -= 1;
+        }
+        if (passedMonths < 0) passedMonths = 0;
+      }
+    }
+
+    const totalMonths = baseMonths + passedMonths;
+    const curYears = Math.floor(totalMonths / 12);
+    const curMonths = totalMonths % 12;
+
+    let curStr = '';
+    if (curYears > 0 && curMonths > 0) curStr = `${curYears}살 ${curMonths}개월`;
+    else if (curYears > 0) curStr = `${curYears}살`;
+    else curStr = `${curMonths}개월`;
+
+    return {
+      currentAge: curStr,
+      regAge: regAgeStr,
+      monthsPassed: passedMonths
+    };
+  }
+
+
   // 앱 전체 데이터 초기화 함수
   function resetAllAppData() {
     if (confirm('등록된 반려동물 프로필과 모든 건강 체크 기록을 삭제하고 처음 상태로 되돌리시겠습니까?')) {
@@ -286,9 +349,10 @@
 
         <!-- 이름 및 핵심 태그 -->
         <div class="flex flex-col gap-0.5">
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 flex-wrap">
             <span id="mypage-name" class="text-base font-extrabold text-slate-800">반려동물을 등록해주세요</span>
             <span id="mypage-gender" class="hidden bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">여아 ♀</span>
+            <span id="mypage-reg-age-top" class="hidden bg-blue-50 text-blue-700 border border-blue-200/80 text-[10px] font-bold px-1.5 py-0.5 rounded-md">2살</span>
             <span id="mypage-neutered" class="hidden bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold px-1.5 py-0.5 rounded-md">중성화 완료</span>
           </div>
           <span id="mypage-breed" class="text-xs font-medium text-slate-400">터치하여 프로필 등록 ✏️</span>
@@ -305,8 +369,8 @@
     <!-- 4대 상세 스펙 그리드 (등록 전 - 빈칸) -->
     <div class="grid grid-cols-3 gap-2 bg-[#FAF9F5] p-2.5 rounded-xl border border-slate-100 text-center">
       <div class="flex flex-col">
-        <span class="text-[10px] font-bold text-slate-400">나이</span>
-        <span id="mypage-age" class="text-xs font-black text-slate-400 mt-0.5">-</span>
+        <span class="text-[10px] font-bold text-primary">현재 나이</span>
+        <span id="mypage-age" class="text-xs font-black text-slate-800 mt-0.5">-</span>
       </div>
       <div class="flex flex-col border-x border-slate-200/60">
         <span class="text-[10px] font-bold text-slate-400">몸무게</span>
@@ -614,8 +678,9 @@
       </div>
       <div class="grid grid-cols-2 gap-2">
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-bold text-slate-700">나이</label>
-          <input type="text" id="edit-age" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"/>
+          <label class="text-xs font-bold text-slate-700">나이 (등록 기준)</label>
+          <input type="text" id="edit-age" required placeholder="예) 3살 2개월, 5살" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none"/>
+          <span class="text-[10px] text-slate-400">💡 등록 후 경과 시간에 따라 현재 나이가 매월 늘어납니다</span>
         </div>
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-slate-700">몸무게</label>
@@ -673,8 +738,20 @@
         if (p.gender) document.getElementById('mypage-gender').innerText = p.gender;
         if (p.neutered) document.getElementById('mypage-neutered').innerText = '중성화 ' + p.neutered;
         if (p.breed) document.getElementById('mypage-breed').innerText = `${p.breed} (${p.type || '강아지'})`;
-        if (p.age) document.getElementById('mypage-age').innerText = p.age;
-        if (p.weight) document.getElementById('mypage-weight').innerText = p.weight;
+        if (p.age) {
+          const ageInfo = calculateCurrentAge(p.age, p.registerDate);
+          document.getElementById('mypage-age').innerText = ageInfo.currentAge;
+          // 상단 빨간 박스 위치에 등록나이(2살 등) 표시
+          const regTopEl = document.getElementById('mypage-reg-age-top');
+          if (regTopEl) {
+            regTopEl.innerText = p.age;
+            regTopEl.classList.remove('hidden');
+          }
+        }
+        if (p.weight) {
+          const wStr = String(p.weight).toLowerCase().endsWith('kg') ? p.weight : p.weight + 'kg';
+          document.getElementById('mypage-weight').innerText = wStr;
+        }
         const avWrap = document.getElementById('mypage-avatar-wrap');
         if (avWrap && p.photo) {
           avWrap.innerHTML = `<img src="${p.photo}" class="w-full h-full object-cover rounded-full" />`;
@@ -729,14 +806,28 @@
 
   function saveMypageProfile(e) {
     e.preventDefault();
+    const newAge = document.getElementById('edit-age').value.trim();
+    let regDate = new Date().toISOString();
+    const prevSaved = localStorage.getItem('pet_profile_data');
+    if (prevSaved) {
+      try {
+        const oldP = JSON.parse(prevSaved);
+        if (oldP.registerDate && oldP.age === newAge) {
+          regDate = oldP.registerDate;
+        }
+      } catch(e) {}
+    }
+
     const profileData = {
       name: document.getElementById('edit-name').value.trim(),
       type: document.getElementById('edit-type').value,
       breed: document.getElementById('edit-breed').value.trim(),
       gender: document.getElementById('edit-gender').value,
       neutered: document.getElementById('edit-neutered').value,
-      age: document.getElementById('edit-age').value.trim(),
-      weight: document.getElementById('edit-weight').value.trim()
+      age: newAge,
+      registerDate: regDate,
+      weight: document.getElementById('edit-weight').value.trim(),
+      photo: editPhotoData || null
     };
 
     localStorage.setItem('pet_profile_data', JSON.stringify(profileData));
