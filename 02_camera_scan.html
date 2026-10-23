@@ -714,16 +714,32 @@
 
   function saveSymptomRecord() {
     const input = document.getElementById('symptom-input').value.trim();
-    if (!input) return;
-    const dateStr = new Date().toISOString().slice(0, 10);
+    const dateStr = new Date().toLocaleDateString('ko-KR');
     const existing = JSON.parse(localStorage.getItem('pet_symptom_records') || '[]');
-    existing.unshift({
+    
+    const record = {
       date: dateStr,
-      symptom: input,
-      time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-    });
-    localStorage.setItem('pet_symptom_records', JSON.stringify(existing));
-    alert('오늘의 증상 상담 기록이 저장되었습니다! (통계/히스토리 연동)');
+      time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+      symptom: input || '사진 AI 환부 스캔 분석',
+      image: currentImageBase64 || null,
+      aiResult: lastAiResult || null
+    };
+
+    existing.unshift(record);
+    // 최대 최근 30개까지 보관
+    localStorage.setItem('pet_symptom_records', JSON.stringify(existing.slice(0, 30)));
+    
+    // 3번 건강상태 리포트 연동을 위한 최근 스캔 결과 저장
+    if (lastAiResult) {
+      localStorage.setItem('pet_last_scan_result', JSON.stringify({
+        date: dateStr,
+        severity: lastAiResult.severity || '주의',
+        observations: lastAiResult.observations || '',
+        careTip: (lastAiResult.home_care && Array.isArray(lastAiResult.home_care) ? lastAiResult.home_care[0] : lastAiResult.home_care) || ''
+      }));
+    }
+
+    alert('AI 스캔 및 상담 결과가 안전하게 저장되었습니다!\n[건강상태] 리포트 및 히스토리에 반영됩니다.');
   }
 </script>
 
